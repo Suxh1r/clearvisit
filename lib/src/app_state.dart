@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import 'data/clearvisit_repository.dart';
 import 'models/models.dart';
+import 'notifications/notification_service.dart';
 
 class AppState extends ChangeNotifier {
-  AppState(this.repository);
+  AppState(this.repository, {this.notifications});
 
   final ClearVisitRepository repository;
+  final NotificationService? notifications;
   bool loading = true;
   List<Appointment> appointments = [];
   List<Medication> medications = [];
@@ -28,6 +30,7 @@ class AppState extends ChangeNotifier {
     measurements = values[3] as List<Measurement>;
     loading = false;
     notifyListeners();
+    await notifications?.sync(appointments, medications);
   }
 
   Future<void> addAppointment(Appointment value) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_state.dart';
 import 'data/clearvisit_repository.dart';
+import 'notifications/notification_service.dart';
 import 'screens/appointment_screen.dart';
 import 'screens/health_log_screen.dart';
 import 'screens/medication_screen.dart';
@@ -9,9 +10,10 @@ import 'screens/measurement_screen.dart';
 import 'screens/settings_screen.dart';
 
 class ClearVisitApp extends StatefulWidget {
-  const ClearVisitApp({required this.repository, super.key});
+  const ClearVisitApp({required this.repository, this.notifications, super.key});
 
   final ClearVisitRepository repository;
+  final NotificationService? notifications;
 
   @override
   State<ClearVisitApp> createState() => _ClearVisitAppState();
@@ -23,7 +25,8 @@ class _ClearVisitAppState extends State<ClearVisitApp> {
   @override
   void initState() {
     super.initState();
-    state = AppState(widget.repository)..load();
+    state = AppState(widget.repository, notifications: widget.notifications)
+      ..load();
   }
 
   @override

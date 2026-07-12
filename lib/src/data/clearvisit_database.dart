@@ -23,9 +23,19 @@ class ClearVisitDatabase {
     final database = await openDatabase(
       p.join(directory.path, 'clearvisit.db'),
       password: key,
-      version: 1,
+      version: 2,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+              'ALTER TABLE appointments ADD COLUMN reminder_minutes INTEGER NOT NULL DEFAULT -1');
+          await db.execute(
+              "ALTER TABLE medications ADD COLUMN times TEXT NOT NULL DEFAULT ''");
+          await db.execute(
+              'ALTER TABLE medications ADD COLUMN reminder_minutes INTEGER NOT NULL DEFAULT -1');
+        }
       },
       onCreate: (db, version) async {
         await db.execute('''
@@ -36,7 +46,8 @@ class ClearVisitDatabase {
             provider TEXT NOT NULL,
             documents TEXT NOT NULL,
             symptoms TEXT NOT NULL,
-            questions TEXT NOT NULL
+            questions TEXT NOT NULL,
+            reminder_minutes INTEGER NOT NULL DEFAULT -1
           )
         ''');
         await db.execute('''
@@ -47,7 +58,9 @@ class ClearVisitDatabase {
             dose TEXT NOT NULL,
             schedule TEXT NOT NULL,
             notes TEXT NOT NULL,
-            active INTEGER NOT NULL CHECK(active IN (0, 1))
+            active INTEGER NOT NULL CHECK(active IN (0, 1)),
+            times TEXT NOT NULL DEFAULT '',
+            reminder_minutes INTEGER NOT NULL DEFAULT -1
           )
         ''');
         await db.execute('''

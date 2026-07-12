@@ -17,3 +17,5 @@ android/local.properties
 *.keystore
 *.p12
 *.mobileprovision
+.DS_Store
+.vscode/

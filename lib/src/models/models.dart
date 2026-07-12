@@ -15,6 +15,7 @@ class Appointment {
     this.documents = '',
     this.symptoms = '',
     this.questions = '',
+    this.reminderMinutes = -1,
   });
 
   final String id;
@@ -25,6 +26,9 @@ class Appointment {
   final String symptoms;
   final String questions;
 
+  /// Minutes before [date] to show a reminder. -1 means no reminder.
+  final int reminderMinutes;
+
   Map<String, Object?> toMap() => {
         'id': id,
         'date': date.toIso8601String(),
@@ -33,6 +37,7 @@ class Appointment {
         'documents': documents,
         'symptoms': symptoms,
         'questions': questions,
+        'reminder_minutes': reminderMinutes,
       };
 
   factory Appointment.fromMap(Map<String, Object?> map) => Appointment(
@@ -43,6 +48,7 @@ class Appointment {
         documents: map['documents']! as String,
         symptoms: map['symptoms']! as String,
         questions: map['questions']! as String,
+        reminderMinutes: (map['reminder_minutes'] as num?)?.toInt() ?? -1,
       );
 }
 
@@ -55,6 +61,8 @@ class Medication {
     this.schedule = '',
     this.notes = '',
     this.active = true,
+    this.times = const [],
+    this.reminderMinutes = -1,
   });
 
   final String id;
@@ -65,6 +73,12 @@ class Medication {
   final String notes;
   final bool active;
 
+  /// Times of day the medication is taken, as 24-hour "HH:mm" strings.
+  final List<String> times;
+
+  /// Minutes before each time in [times] to show a reminder. -1 means none.
+  final int reminderMinutes;
+
   Map<String, Object?> toMap() => {
         'id': id,
         'name': name,
@@ -73,6 +87,8 @@ class Medication {
         'schedule': schedule,
         'notes': notes,
         'active': active ? 1 : 0,
+        'times': times.join(','),
+        'reminder_minutes': reminderMinutes,
       };
 
   factory Medication.fromMap(Map<String, Object?> map) => Medication(
@@ -83,6 +99,11 @@ class Medication {
         schedule: map['schedule']! as String,
         notes: map['notes']! as String,
         active: map['active'] == 1,
+        times: ((map['times'] as String?) ?? '')
+            .split(',')
+            .where((value) => value.trim().isNotEmpty)
+            .toList(),
+        reminderMinutes: (map['reminder_minutes'] as num?)?.toInt() ?? -1,
       );
 }
 

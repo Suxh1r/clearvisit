@@ -3,6 +3,26 @@ import 'package:flutter/material.dart';
 String shortDate(DateTime value) =>
     '${value.month}/${value.day}/${value.year}';
 
+String formatTimeOfDay(TimeOfDay value) {
+  final hour = value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod;
+  final minute = value.minute.toString().padLeft(2, '0');
+  return '$hour:$minute ${value.period == DayPeriod.am ? 'AM' : 'PM'}';
+}
+
+/// Converts a [TimeOfDay] to a 24-hour "HH:mm" storage string.
+String timeToStorage(TimeOfDay value) =>
+    '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+
+/// Parses a 24-hour "HH:mm" storage string, or null if invalid.
+TimeOfDay? timeFromStorage(String value) {
+  final parts = value.split(':');
+  if (parts.length != 2) return null;
+  final hour = int.tryParse(parts[0]);
+  final minute = int.tryParse(parts[1]);
+  if (hour == null || minute == null) return null;
+  return TimeOfDay(hour: hour, minute: minute);
+}
+
 class EmptyState extends StatelessWidget {
   const EmptyState({required this.icon, required this.title, required this.body, super.key});
 
