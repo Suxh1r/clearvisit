@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
-String shortDate(DateTime value) =>
-    '${value.month}/${value.day}/${value.year}';
+String shortDate(DateTime value) => '${value.month}/${value.day}/${value.year}';
+
+String weekdayName(DateTime value) => const [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+][value.weekday - 1];
 
 String formatTimeOfDay(TimeOfDay value) {
   final hour = value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod;
@@ -24,7 +33,12 @@ TimeOfDay? timeFromStorage(String value) {
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({required this.icon, required this.title, required this.body, super.key});
+  const EmptyState({
+    required this.icon,
+    required this.title,
+    required this.body,
+    super.key,
+  });
 
   final IconData icon;
   final String title;
@@ -32,18 +46,45 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 64, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Text(body, textAlign: TextAlign.center),
-          ],
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: const Color(0xFFE0ECE8)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 34,
+                backgroundColor: colors.primaryContainer,
+                child: Icon(icon, size: 36, color: colors.onPrimaryContainer),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                body,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -58,14 +99,44 @@ class ScreenIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colors.primary, const Color(0xFF2C9C8C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: colors.primary.withValues(alpha: 0.18),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 6),
-          Text(body),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            body,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.92),
+              height: 1.35,
+            ),
+          ),
         ],
       ),
     );
@@ -73,21 +144,113 @@ class ScreenIntro extends StatelessWidget {
 }
 
 class TextEntry extends StatelessWidget {
-  const TextEntry({required this.controller, required this.label, this.lines = 1, super.key});
+  const TextEntry({
+    required this.controller,
+    required this.label,
+    this.lines = 1,
+    this.keyboardType,
+    super.key,
+  });
 
   final TextEditingController controller;
   final String label;
   final int lines;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: TextField(
-          controller: controller,
-          maxLines: lines,
-          textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(labelText: label),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 12),
+    child: TextField(
+      controller: controller,
+      maxLines: lines,
+      keyboardType: keyboardType,
+      textCapitalization: TextCapitalization.sentences,
+      decoration: InputDecoration(labelText: label),
+    ),
+  );
 }
 
+class SummaryCard extends StatelessWidget {
+  const SummaryCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+    this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: colors.primaryContainer,
+                  child: Icon(icon, color: colors.onPrimaryContainer),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (trailing != null) ...[const SizedBox(width: 12), trailing!],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FormSectionLabel extends StatelessWidget {
+  const FormSectionLabel(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 8, top: 4),
+      child: Text(
+        text,
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+      ),
+    ),
+  );
+}

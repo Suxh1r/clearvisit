@@ -12,44 +12,61 @@ class MedicationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: state,
-        builder: (context, _) => Column(children: [
-          const ScreenIntro(
-            title: 'Medication list',
-            body: 'Record exactly what the label says. ClearVisit does not check medications or doses.',
+    animation: state,
+    builder: (context, _) => Column(
+      children: [
+        const ScreenIntro(
+          title: 'Medication list',
+          body:
+              'Record exactly what the label says. ClearVisit does not check medications or doses.',
+        ),
+        Expanded(
+          child: state.medications.isEmpty
+              ? const EmptyState(
+                  icon: Icons.medication,
+                  title: 'No medications yet',
+                  body: 'Add each medication from its label.',
+                )
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                  children: state.medications
+                      .map(
+                        (value) => SummaryCard(
+                          icon: Icons.medication_outlined,
+                          title:
+                              '${value.name}${value.strength.isEmpty ? '' : ' ${value.strength}'}',
+                          subtitle: [
+                            value.dose,
+                            value.schedule,
+                            value.times
+                                .map((time) {
+                                  final parsed = timeFromStorage(time);
+                                  return parsed == null
+                                      ? time
+                                      : formatTimeOfDay(parsed);
+                                })
+                                .join(', '),
+                          ].where((part) => part.isNotEmpty).join(' • '),
+                        ),
+                      )
+                      .toList(),
+                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: FilledButton.icon(
+              onPressed: () => _add(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Add medication'),
+            ),
           ),
-          Expanded(
-            child: state.medications.isEmpty
-                ? const EmptyState(icon: Icons.medication, title: 'No medications yet', body: 'Add each medication from its label.')
-                : ListView(
-                    padding: const EdgeInsets.all(12),
-                    children: state.medications.map((value) => Card(
-                      child: ListTile(
-                        minVerticalPadding: 14,
-                        leading: const CircleAvatar(child: Icon(Icons.medication_outlined)),
-                        title: Text('${value.name}${value.strength.isEmpty ? '' : ' ${value.strength}'}'),
-                        subtitle: Text([
-                          value.dose,
-                          value.schedule,
-                          value.times
-                              .map((time) {
-                                final parsed = timeFromStorage(time);
-                                return parsed == null ? time : formatTimeOfDay(parsed);
-                              })
-                              .join(', '),
-                        ].where((part) => part.isNotEmpty).join(' • ')),
-                      ),
-                    )).toList(),
-                  ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(width: double.infinity, height: 52, child: FilledButton.icon(
-              onPressed: () => _add(context), icon: const Icon(Icons.add), label: const Text('Add medication'),
-            )),
-          ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 
   static const Map<int, String> _reminderChoices = {
     -1: 'No reminder',
@@ -60,7 +77,6 @@ class MedicationScreen extends StatelessWidget {
     30: '30 minutes before',
   };
 
-  /// Default time slots for each schedule choice; the user can change them.
   static List<TimeOfDay> _seedTimes(String schedule) {
     const seeds = <String, List<int>>{
       'Morning': [8],
@@ -88,87 +104,154 @@ class MedicationScreen extends StatelessWidget {
     final notes = TextEditingController();
     var times = <TimeOfDay>[];
     var reminderMinutes = -1;
-    final saved = await showDialog<bool>(context: context, builder: (context) => StatefulBuilder(
-      builder: (context, setState) {
-        final knownStrengths = MedicationCatalog.strengthsFor(name.text);
-        final strengthOptions = knownStrengths.isNotEmpty ? knownStrengths : MedicationCatalog.genericStrengths;
-        return AlertDialog(
-          title: const Text('Add medication'),
-          content: SizedBox(
-            width: 500,
-            child: SingleChildScrollView(child: Column(children: [
-              AutocompleteEntry(
-                controller: name,
-                label: 'Medication name',
-                optionsBuilder: MedicationCatalog.search,
-                onChanged: (_) => setState(() {}),
-                onSelected: (_) => setState(() {}),
-              ),
-              DropdownEntry(controller: strength, label: 'Strength', options: strengthOptions),
-              DropdownEntry(controller: dose, label: 'Dose', options: MedicationCatalog.doseOptions),
-              DropdownEntry(
-                controller: schedule,
-                label: 'When you take it',
-                options: MedicationCatalog.scheduleOptions,
-                onChanged: (value) => setState(() => times = _seedTimes(value)),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text('Times you take it', style: Theme.of(context).textTheme.labelLarge),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(spacing: 8, runSpacing: 8, children: [
-                    for (var i = 0; i < times.length; i++)
-                      InputChip(
-                        label: Text(formatTimeOfDay(times[i])),
-                        onPressed: () async {
-                          final picked = await showTimePicker(context: context, initialTime: times[i]);
-                          if (picked != null) setState(() => times[i] = picked);
-                        },
-                        onDeleted: () => setState(() => times.removeAt(i)),
-                      ),
-                    ActionChip(
-                      avatar: const Icon(Icons.add, size: 18),
-                      label: const Text('Add time'),
-                      onPressed: () async {
-                        final picked = await showTimePicker(
-                            context: context, initialTime: const TimeOfDay(hour: 8, minute: 0));
-                        if (picked != null) setState(() => times.add(picked));
-                      },
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          final knownStrengths = MedicationCatalog.strengthsFor(name.text);
+          final strengthOptions = knownStrengths.isNotEmpty
+              ? knownStrengths
+              : MedicationCatalog.genericStrengths;
+          return AlertDialog(
+            title: const Text('Add medication'),
+            content: SizedBox(
+              width: 500,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    AutocompleteEntry(
+                      controller: name,
+                      label: 'Medication name',
+                      optionsBuilder: MedicationCatalog.search,
+                      onChanged: (_) => setState(() {}),
+                      onSelected: (_) => setState(() {}),
                     ),
-                  ]),
+                    DropdownEntry(
+                      controller: strength,
+                      label: 'Strength',
+                      options: strengthOptions,
+                    ),
+                    DropdownEntry(
+                      controller: dose,
+                      label: 'Dose',
+                      options: MedicationCatalog.doseOptions,
+                    ),
+                    DropdownEntry(
+                      controller: schedule,
+                      label: 'When you take it',
+                      options: MedicationCatalog.scheduleOptions,
+                      onChanged: (value) =>
+                          setState(() => times = _seedTimes(value)),
+                    ),
+                    const FormSectionLabel('Times you take it'),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (var i = 0; i < times.length; i++)
+                              InputChip(
+                                label: Text(formatTimeOfDay(times[i])),
+                                onPressed: () async {
+                                  final picked = await _pickTimeDropdown(
+                                    context,
+                                    times[i],
+                                  );
+                                  if (picked != null) {
+                                    setState(() => times[i] = picked);
+                                  }
+                                },
+                                onDeleted: () =>
+                                    setState(() => times.removeAt(i)),
+                              ),
+                            ActionChip(
+                              avatar: const Icon(Icons.add, size: 18),
+                              label: const Text('Add time'),
+                              onPressed: () async {
+                                final picked = await _pickTimeDropdown(
+                                  context,
+                                  const TimeOfDay(hour: 8, minute: 0),
+                                );
+                                if (picked != null) {
+                                  setState(() => times.add(picked));
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    ReminderDropdown(
+                      value: reminderMinutes,
+                      choices: _reminderChoices,
+                      onChanged: (value) =>
+                          setState(() => reminderMinutes = value),
+                    ),
+                    TextEntry(controller: notes, label: 'Notes', lines: 2),
+                  ],
                 ),
               ),
-              ReminderDropdown(
-                value: reminderMinutes,
-                choices: _reminderChoices,
-                onChanged: (value) => setState(() => reminderMinutes = value),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
               ),
-              TextEntry(controller: notes, label: 'Notes', lines: 2),
-            ])),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
-          ],
-        );
-      },
-    ));
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
     if (saved == true && name.text.trim().isNotEmpty) {
       times.sort((a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute));
-      await state.addMedication(Medication(
-        id: newId(), name: name.text.trim(), strength: strength.text.trim(), dose: dose.text.trim(),
-        schedule: schedule.text.trim(), notes: notes.text.trim(),
-        times: times.map(timeToStorage).toList(),
-        reminderMinutes: reminderMinutes,
-      ));
+      await state.addMedication(
+        Medication(
+          id: newId(),
+          name: name.text.trim(),
+          strength: strength.text.trim(),
+          dose: dose.text.trim(),
+          schedule: schedule.text.trim(),
+          notes: notes.text.trim(),
+          times: times.map(timeToStorage).toList(),
+          reminderMinutes: reminderMinutes,
+        ),
+      );
     }
   }
-}
 
+  Future<TimeOfDay?> _pickTimeDropdown(
+    BuildContext context,
+    TimeOfDay initial,
+  ) {
+    var picked = initial;
+    return showDialog<TimeOfDay>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Choose time'),
+          content: TimeDropdownEntry(
+            value: picked,
+            onChanged: (value) => setState(() => picked = value),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, picked),
+              child: const Text('Use time'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

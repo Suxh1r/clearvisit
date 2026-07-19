@@ -23,6 +23,280 @@ class AutocompleteEntry extends StatefulWidget {
   State<AutocompleteEntry> createState() => _AutocompleteEntryState();
 }
 
+class DateDropdownEntry extends StatelessWidget {
+  const DateDropdownEntry({
+    required this.value,
+    required this.onChanged,
+    this.label = 'Date',
+    this.firstYearOffset = -1,
+    this.yearCount = 5,
+    this.preferFutureWeekday = false,
+    super.key,
+  });
+
+  final DateTime value;
+  final ValueChanged<DateTime> onChanged;
+  final String label;
+  final int firstYearOffset;
+  final int yearCount;
+  final bool preferFutureWeekday;
+
+  static const _months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  static const _weekdays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final currentYear = DateTime.now().year;
+    final years = List.generate(
+      yearCount,
+      (index) => currentYear + firstYearOffset + index,
+    );
+    final daysInMonth = DateUtils.getDaysInMonth(value.year, value.month);
+    final day = value.day.clamp(1, daysInMonth);
+
+    DateTime safeDate({int? year, int? month, int? day}) {
+      final nextYear = year ?? value.year;
+      final nextMonth = month ?? value.month;
+      final maxDay = DateUtils.getDaysInMonth(nextYear, nextMonth);
+      return DateTime(
+        nextYear,
+        nextMonth,
+        (day ?? value.day).clamp(1, maxDay),
+        value.hour,
+        value.minute,
+      );
+    }
+
+    DateTime dateForWeekday(int weekday) {
+      var delta = weekday - value.weekday;
+      if (preferFutureWeekday && delta < 0) {
+        delta += 7;
+      } else if (!preferFutureWeekday && delta.abs() > 3) {
+        delta += delta > 0 ? -7 : 7;
+      }
+      final shifted = value.add(Duration(days: delta));
+      return DateTime(
+        shifted.year,
+        shifted.month,
+        shifted.day,
+        value.hour,
+        value.minute,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: DropdownButtonFormField<int>(
+                  key: ValueKey(
+                    'month-${value.year}-${value.month}-${value.day}',
+                  ),
+                  initialValue: value.month,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Month'),
+                  items: [
+                    for (var i = 0; i < _months.length; i++)
+                      DropdownMenuItem(value: i + 1, child: Text(_months[i])),
+                  ],
+                  onChanged: (selected) {
+                    if (selected != null) onChanged(safeDate(month: selected));
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: DropdownButtonFormField<int>(
+                  key: ValueKey(
+                    'day-${value.year}-${value.month}-${value.day}',
+                  ),
+                  initialValue: day,
+                  decoration: const InputDecoration(labelText: 'Day'),
+                  items: [
+                    for (var i = 1; i <= daysInMonth; i++)
+                      DropdownMenuItem(value: i, child: Text('$i')),
+                  ],
+                  onChanged: (selected) {
+                    if (selected != null) onChanged(safeDate(day: selected));
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  key: ValueKey(
+                    'year-${value.year}-${value.month}-${value.day}',
+                  ),
+                  initialValue: years.contains(value.year)
+                      ? value.year
+                      : currentYear,
+                  decoration: const InputDecoration(labelText: 'Year'),
+                  items: [
+                    for (final year in years)
+                      DropdownMenuItem(value: year, child: Text('$year')),
+                  ],
+                  onChanged: (selected) {
+                    if (selected != null) onChanged(safeDate(year: selected));
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  key: ValueKey(
+                    'weekday-${value.year}-${value.month}-${value.day}',
+                  ),
+                  initialValue: value.weekday,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Day of week'),
+                  items: [
+                    for (var i = 0; i < _weekdays.length; i++)
+                      DropdownMenuItem(value: i + 1, child: Text(_weekdays[i])),
+                  ],
+                  onChanged: (selected) {
+                    if (selected != null) onChanged(dateForWeekday(selected));
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TimeDropdownEntry extends StatelessWidget {
+  const TimeDropdownEntry({
+    required this.value,
+    required this.onChanged,
+    this.label = 'Time',
+    super.key,
+  });
+
+  final TimeOfDay value;
+  final ValueChanged<TimeOfDay> onChanged;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final hour = value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod;
+    final roundedMinute = (value.minute / 5).round() * 5;
+    final minute = roundedMinute == 60 ? 55 : roundedMinute;
+    final period = value.period;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  key: ValueKey('hour-${value.hour}-${value.minute}'),
+                  initialValue: hour,
+                  decoration: const InputDecoration(labelText: 'Hour'),
+                  items: [
+                    for (var i = 1; i <= 12; i++)
+                      DropdownMenuItem(value: i, child: Text('$i')),
+                  ],
+                  onChanged: (selected) {
+                    if (selected == null) return;
+                    final nextHour = _to24Hour(selected, period);
+                    onChanged(TimeOfDay(hour: nextHour, minute: minute));
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  key: ValueKey('minute-${value.hour}-${value.minute}'),
+                  initialValue: minute,
+                  decoration: const InputDecoration(labelText: 'Minute'),
+                  items: [
+                    for (var i = 0; i < 60; i += 5)
+                      DropdownMenuItem(
+                        value: i,
+                        child: Text(i.toString().padLeft(2, '0')),
+                      ),
+                  ],
+                  onChanged: (selected) {
+                    if (selected == null) return;
+                    onChanged(TimeOfDay(hour: value.hour, minute: selected));
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<DayPeriod>(
+                  key: ValueKey('period-${value.hour}-${value.minute}'),
+                  initialValue: period,
+                  decoration: const InputDecoration(labelText: 'AM/PM'),
+                  items: const [
+                    DropdownMenuItem(value: DayPeriod.am, child: Text('AM')),
+                    DropdownMenuItem(value: DayPeriod.pm, child: Text('PM')),
+                  ],
+                  onChanged: (selected) {
+                    if (selected == null) return;
+                    onChanged(
+                      TimeOfDay(
+                        hour: _to24Hour(hour, selected),
+                        minute: minute,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _to24Hour(int hour, DayPeriod period) {
+    final normalized = hour == 12 ? 0 : hour;
+    return period == DayPeriod.am ? normalized : normalized + 12;
+  }
+}
+
 class _AutocompleteEntryState extends State<AutocompleteEntry> {
   final FocusNode _focusNode = FocusNode();
 
@@ -34,15 +308,15 @@ class _AutocompleteEntryState extends State<AutocompleteEntry> {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: LayoutBuilder(
-          builder: (context, constraints) => RawAutocomplete<String>(
-            textEditingController: widget.controller,
-            focusNode: _focusNode,
-            optionsBuilder: (value) => widget.optionsBuilder(value.text),
-            onSelected: widget.onSelected,
-            fieldViewBuilder: (context, controller, focusNode, onSubmit) =>
-                TextField(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: LayoutBuilder(
+      builder: (context, constraints) => RawAutocomplete<String>(
+        textEditingController: widget.controller,
+        focusNode: _focusNode,
+        optionsBuilder: (value) => widget.optionsBuilder(value.text),
+        onSelected: widget.onSelected,
+        fieldViewBuilder: (context, controller, focusNode, onSubmit) =>
+            TextField(
               controller: controller,
               focusNode: focusNode,
               textCapitalization: TextCapitalization.sentences,
@@ -50,35 +324,35 @@ class _AutocompleteEntryState extends State<AutocompleteEntry> {
               onChanged: widget.onChanged,
               onSubmitted: (_) => onSubmit(),
             ),
-            optionsViewBuilder: (context, onSelected, options) => Align(
-              alignment: Alignment.topLeft,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(8),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 220,
-                    maxWidth: constraints.maxWidth,
-                  ),
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      final option = options.elementAt(index);
-                      return ListTile(
-                        dense: true,
-                        title: Text(option),
-                        onTap: () => onSelected(option),
-                      );
-                    },
-                  ),
-                ),
+        optionsViewBuilder: (context, onSelected, options) => Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 220,
+                maxWidth: constraints.maxWidth,
+              ),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final option = options.elementAt(index);
+                  return ListTile(
+                    dense: true,
+                    title: Text(option),
+                    onTap: () => onSelected(option),
+                  );
+                },
               ),
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 /// Dropdown for picking how far in advance a reminder should fire.
@@ -99,20 +373,22 @@ class ReminderDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: DropdownButtonFormField<int>(
-          initialValue: value,
-          isExpanded: true,
-          decoration: const InputDecoration(labelText: 'Remind me'),
-          items: choices.entries
-              .map((entry) => DropdownMenuItem(
-                    value: entry.key,
-                    child: Text(entry.value, overflow: TextOverflow.ellipsis),
-                  ))
-              .toList(),
-          onChanged: (selected) => onChanged(selected ?? -1),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 12),
+    child: DropdownButtonFormField<int>(
+      initialValue: value,
+      isExpanded: true,
+      decoration: const InputDecoration(labelText: 'Remind me'),
+      items: choices.entries
+          .map(
+            (entry) => DropdownMenuItem(
+              value: entry.key,
+              child: Text(entry.value, overflow: TextOverflow.ellipsis),
+            ),
+          )
+          .toList(),
+      onChanged: (selected) => onChanged(selected ?? -1),
+    ),
+  );
 }
 
 /// Dropdown of preset options plus an "Other" choice that reveals a text
@@ -212,7 +488,9 @@ class _DropdownEntryState extends State<DropdownEntry> {
             onChanged: (value) {
               setState(() {
                 _selected = value;
-                widget.controller.text = (value == null || value == _other) ? '' : value;
+                widget.controller.text = (value == null || value == _other)
+                    ? ''
+                    : value;
               });
               widget.onChanged?.call(widget.controller.text);
             },
@@ -225,7 +503,8 @@ class _DropdownEntryState extends State<DropdownEntry> {
                 autofocus: true,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  labelText: widget.otherHint ?? 'Enter ${widget.label.toLowerCase()}',
+                  labelText:
+                      widget.otherHint ?? 'Enter ${widget.label.toLowerCase()}',
                 ),
               ),
             ),
