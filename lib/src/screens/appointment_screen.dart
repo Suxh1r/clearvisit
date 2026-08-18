@@ -135,7 +135,6 @@ class AppointmentScreen extends StatelessWidget {
                     label: 'Appointment date',
                     firstYearOffset: 0,
                     yearCount: 4,
-                    preferFutureWeekday: true,
                     onChanged: (picked) => setState(() => when = picked),
                   ),
                   TimeDropdownEntry(

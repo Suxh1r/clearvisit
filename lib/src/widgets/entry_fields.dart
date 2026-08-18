@@ -30,7 +30,6 @@ class DateDropdownEntry extends StatelessWidget {
     this.label = 'Date',
     this.firstYearOffset = -1,
     this.yearCount = 5,
-    this.preferFutureWeekday = false,
     super.key,
   });
 
@@ -39,7 +38,6 @@ class DateDropdownEntry extends StatelessWidget {
   final String label;
   final int firstYearOffset;
   final int yearCount;
-  final bool preferFutureWeekday;
 
   static const _months = [
     'January',
@@ -54,16 +52,6 @@ class DateDropdownEntry extends StatelessWidget {
     'October',
     'November',
     'December',
-  ];
-
-  static const _weekdays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
   ];
 
   @override
@@ -84,23 +72,6 @@ class DateDropdownEntry extends StatelessWidget {
         nextYear,
         nextMonth,
         (day ?? value.day).clamp(1, maxDay),
-        value.hour,
-        value.minute,
-      );
-    }
-
-    DateTime dateForWeekday(int weekday) {
-      var delta = weekday - value.weekday;
-      if (preferFutureWeekday && delta < 0) {
-        delta += 7;
-      } else if (!preferFutureWeekday && delta.abs() > 3) {
-        delta += delta > 0 ? -7 : 7;
-      }
-      final shifted = value.add(Duration(days: delta));
-      return DateTime(
-        shifted.year,
-        shifted.month,
-        shifted.day,
         value.hour,
         value.minute,
       );
@@ -154,45 +125,17 @@ class DateDropdownEntry extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  key: ValueKey(
-                    'year-${value.year}-${value.month}-${value.day}',
-                  ),
-                  initialValue: years.contains(value.year)
-                      ? value.year
-                      : currentYear,
-                  decoration: const InputDecoration(labelText: 'Year'),
-                  items: [
-                    for (final year in years)
-                      DropdownMenuItem(value: year, child: Text('$year')),
-                  ],
-                  onChanged: (selected) {
-                    if (selected != null) onChanged(safeDate(year: selected));
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  key: ValueKey(
-                    'weekday-${value.year}-${value.month}-${value.day}',
-                  ),
-                  initialValue: value.weekday,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Day of week'),
-                  items: [
-                    for (var i = 0; i < _weekdays.length; i++)
-                      DropdownMenuItem(value: i + 1, child: Text(_weekdays[i])),
-                  ],
-                  onChanged: (selected) {
-                    if (selected != null) onChanged(dateForWeekday(selected));
-                  },
-                ),
-              ),
+          DropdownButtonFormField<int>(
+            key: ValueKey('year-${value.year}-${value.month}-${value.day}'),
+            initialValue: years.contains(value.year) ? value.year : currentYear,
+            decoration: const InputDecoration(labelText: 'Year'),
+            items: [
+              for (final year in years)
+                DropdownMenuItem(value: year, child: Text('$year')),
             ],
+            onChanged: (selected) {
+              if (selected != null) onChanged(safeDate(year: selected));
+            },
           ),
         ],
       ),

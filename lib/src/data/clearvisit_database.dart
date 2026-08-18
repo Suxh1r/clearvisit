@@ -14,7 +14,9 @@ class ClearVisitDatabase {
   static const _keyName = 'clearvisit.database.key.v1';
   static const _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(migrateWithBackup: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.unlocked_this_device),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.unlocked_this_device,
+    ),
   );
 
   static Future<ClearVisitDatabase> open() async {
@@ -23,18 +25,24 @@ class ClearVisitDatabase {
     final database = await openDatabase(
       p.join(directory.path, 'clearvisit.db'),
       password: key,
-      version: 2,
+      version: 3,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute(
-              'ALTER TABLE appointments ADD COLUMN reminder_minutes INTEGER NOT NULL DEFAULT -1');
+            'ALTER TABLE appointments ADD COLUMN reminder_minutes INTEGER NOT NULL DEFAULT -1',
+          );
           await db.execute(
-              "ALTER TABLE medications ADD COLUMN times TEXT NOT NULL DEFAULT ''");
+            "ALTER TABLE medications ADD COLUMN times TEXT NOT NULL DEFAULT ''",
+          );
           await db.execute(
-              'ALTER TABLE medications ADD COLUMN reminder_minutes INTEGER NOT NULL DEFAULT -1');
+            'ALTER TABLE medications ADD COLUMN reminder_minutes INTEGER NOT NULL DEFAULT -1',
+          );
+        }
+        if (oldVersion < 3) {
+          await _createSettingsTable(db);
         }
       },
       onCreate: (db, version) async {
@@ -81,10 +89,19 @@ class ClearVisitDatabase {
             context TEXT NOT NULL
           )
         ''');
+        await _createSettingsTable(db);
       },
     );
     return ClearVisitDatabase._(database);
   }
+
+  static Future<void> _createSettingsTable(DatabaseExecutor db) =>
+      db.execute('''
+        CREATE TABLE IF NOT EXISTS settings (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        )
+      ''');
 
   static Future<String> _getOrCreateKey() async {
     final existing = await _secureStorage.read(key: _keyName);
@@ -97,4 +114,3 @@ class ClearVisitDatabase {
     return key;
   }
 }
-

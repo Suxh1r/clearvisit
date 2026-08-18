@@ -41,61 +41,84 @@ class _ClearVisitAppState extends State<ClearVisitApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ClearVisit',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF146C60),
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF7FAF9),
-        useMaterial3: true,
-        textTheme: ThemeData.light().textTheme.apply(
-          bodyColor: const Color(0xFF13201D),
-          displayColor: const Color(0xFF13201D),
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF7FAF9),
-          foregroundColor: Color(0xFF13201D),
-          elevation: 0,
-          centerTitle: false,
-        ),
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFFE0ECE8)),
-          ),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: Colors.white,
-          indicatorColor: const Color(0xFFE0F2ED),
-          labelTextStyle: WidgetStateProperty.all(
-            const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-          ),
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-            borderSide: BorderSide(color: Color(0xFFD7E7E2)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-            borderSide: BorderSide(color: Color(0xFFD7E7E2)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-            borderSide: BorderSide(color: Color(0xFF146C60), width: 2),
-          ),
-          alignLabelWithHint: true,
+    return AnimatedBuilder(
+      animation: state,
+      builder: (context, _) => MaterialApp(
+        title: 'ClearVisit',
+        debugShowCheckedModeBanner: false,
+        themeMode: state.themeMode,
+        theme: _clearVisitTheme(Brightness.light),
+        darkTheme: _clearVisitTheme(Brightness.dark),
+        home: HomeShell(state: state),
+      ),
+    );
+  }
+
+  ThemeData _clearVisitTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final colors = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF146C60),
+      brightness: brightness,
+    );
+    final scaffold = isDark ? const Color(0xFF071512) : const Color(0xFFF7FAF9);
+    final surface = isDark ? const Color(0xFF10211D) : Colors.white;
+    final surfaceVariant = isDark
+        ? const Color(0xFF18332D)
+        : const Color(0xFFE0F2ED);
+    final outline = isDark ? const Color(0xFF294940) : const Color(0xFFE0ECE8);
+    final textColor = isDark
+        ? const Color(0xFFEAF4F1)
+        : const Color(0xFF13201D);
+
+    return ThemeData(
+      colorScheme: colors.copyWith(
+        surface: surface,
+        surfaceContainerHighest: surfaceVariant,
+        outline: outline,
+      ),
+      scaffoldBackgroundColor: scaffold,
+      useMaterial3: true,
+      textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme
+          .apply(bodyColor: textColor, displayColor: textColor),
+      appBarTheme: AppBarTheme(
+        backgroundColor: scaffold,
+        foregroundColor: textColor,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      cardTheme: CardThemeData(
+        color: surface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: outline),
         ),
       ),
-      home: HomeShell(state: state),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        indicatorColor: surfaceVariant,
+        labelTextStyle: WidgetStateProperty.all(
+          const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: surface,
+        border: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(18)),
+          borderSide: BorderSide(color: outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(18)),
+          borderSide: BorderSide(color: outline),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+          borderSide: BorderSide(color: Color(0xFF146C60), width: 2),
+        ),
+        alignLabelWithHint: true,
+      ),
     );
   }
 }

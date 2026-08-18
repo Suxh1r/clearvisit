@@ -54,9 +54,9 @@ class EmptyState extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: const Color(0xFFE0ECE8)),
+            border: Border.all(color: colors.outline),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -100,12 +100,15 @@ class ScreenIntro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [colors.primary, const Color(0xFF2C9C8C)],
+          colors: isDark
+              ? [const Color(0xFF0E3B34), const Color(0xFF15584D)]
+              : [colors.primary, const Color(0xFF2C9C8C)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

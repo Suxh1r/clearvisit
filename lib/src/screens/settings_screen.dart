@@ -8,59 +8,66 @@ class SettingsScreen extends StatelessWidget {
   final AppState state;
 
   @override
-  Widget build(BuildContext context) => ListView(
-    padding: EdgeInsets.zero,
-    children: [
-      const ScreenIntro(
-        title: 'Privacy and settings',
-        body:
-            'ClearVisit stores your entries in an encrypted database on this device.',
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-        child: Column(
-          children: [
-            const SummaryCard(
-              icon: Icons.cloud_off,
-              title: 'No cloud sync',
-              subtitle:
-                  'This version does not send your health entries to ClearVisit or GCP.',
-            ),
-            const SummaryCard(
-              icon: Icons.medical_information_outlined,
-              title: 'Personal organizer only',
-              subtitle:
-                  'ClearVisit does not provide medical advice, diagnosis, monitoring, or treatment.',
-            ),
-            const SummaryCard(
-              icon: Icons.backup_outlined,
-              title: 'Encrypted backup',
-              subtitle:
-                  'Planned: user-controlled encrypted export and restore.',
-            ),
-            SummaryCard(
-              icon: Icons.delete_forever,
-              title: 'Delete everything',
-              subtitle:
-                  'Permanently removes all ClearVisit records from this device.',
-              trailing: Icon(
-                Icons.chevron_right,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              onTap: () => _confirmDelete(context),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'If you may be having a medical emergency, contact local emergency services. Do not rely on ClearVisit.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1.35,
-              ),
-            ),
-          ],
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: state,
+    builder: (context, _) => ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        const ScreenIntro(
+          title: 'Privacy and settings',
+          body:
+              'ClearVisit stores your entries in an encrypted database on this device.',
         ),
-      ),
-    ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          child: Column(
+            children: [
+              _ThemeModeCard(
+                value: state.themeMode,
+                onChanged: state.setThemeMode,
+              ),
+              const SummaryCard(
+                icon: Icons.cloud_off,
+                title: 'No cloud sync',
+                subtitle:
+                    'This version does not send your health entries to ClearVisit or GCP.',
+              ),
+              const SummaryCard(
+                icon: Icons.medical_information_outlined,
+                title: 'Personal organizer only',
+                subtitle:
+                    'ClearVisit does not provide medical advice, diagnosis, monitoring, or treatment.',
+              ),
+              const SummaryCard(
+                icon: Icons.backup_outlined,
+                title: 'Encrypted backup',
+                subtitle:
+                    'Planned: user-controlled encrypted export and restore.',
+              ),
+              SummaryCard(
+                icon: Icons.delete_forever,
+                title: 'Delete everything',
+                subtitle:
+                    'Permanently removes all ClearVisit records from this device.',
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                onTap: () => _confirmDelete(context),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'If you may be having a medical emergency, contact local emergency services. Do not rely on ClearVisit.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
   );
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -87,5 +94,83 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
     if (confirmed == true) await state.deleteEverything();
+  }
+}
+
+class _ThemeModeCard extends StatelessWidget {
+  const _ThemeModeCard({required this.value, required this.onChanged});
+
+  final ThemeMode value;
+  final ValueChanged<ThemeMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: colors.primaryContainer,
+                child: Icon(Icons.contrast, color: colors.onPrimaryContainer),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Appearance',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'White and green stays the default. Use dark mode when it is easier on your eyes.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<ThemeMode>(
+                      key: ValueKey(value),
+                      initialValue: value,
+                      isExpanded: true,
+                      decoration: const InputDecoration(labelText: 'Theme'),
+                      items: const [
+                        DropdownMenuItem(
+                          value: ThemeMode.system,
+                          child: Text('Use device setting'),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.light,
+                          child: Text('Light'),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.dark,
+                          child: Text('Dark'),
+                        ),
+                      ],
+                      onChanged: (selected) {
+                        if (selected != null) {
+                          onChanged(selected);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

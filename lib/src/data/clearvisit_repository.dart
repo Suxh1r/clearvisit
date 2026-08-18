@@ -37,40 +37,58 @@ class ClearVisitRepository {
   }
 
   Future<void> saveAppointment(Appointment value) => database.db.insert(
-        'appointments',
-        value.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    'appointments',
+    value.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
 
   Future<void> saveMedication(Medication value) => database.db.insert(
-        'medications',
-        value.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    'medications',
+    value.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
 
   Future<void> saveHealthLogEntry(HealthLogEntry value) => database.db.insert(
-        'health_log_entries',
-        value.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    'health_log_entries',
+    value.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
 
   Future<void> saveMeasurement(Measurement value) => database.db.insert(
-        'measurements',
-        value.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    'measurements',
+    value.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+
+  Future<String?> setting(String key) async {
+    final rows = await database.db.query(
+      'settings',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: [key],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return rows.first['value'] as String;
+  }
+
+  Future<void> saveSetting(String key, String value) => database.db.insert(
+    'settings',
+    {'key': key, 'value': value},
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
 
   Future<void> delete(String table, String id) =>
       database.db.delete(table, where: 'id = ?', whereArgs: [id]);
 
   Future<void> deleteEverything() => database.db.transaction((txn) async {
-        for (final table in [
-          'appointments',
-          'medications',
-          'health_log_entries',
-          'measurements',
-        ]) {
-          await txn.delete(table);
-        }
-      });
+    for (final table in [
+      'appointments',
+      'medications',
+      'health_log_entries',
+      'measurements',
+    ]) {
+      await txn.delete(table);
+    }
+  });
 }
