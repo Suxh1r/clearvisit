@@ -63,59 +63,63 @@ class HealthLogScreen extends StatelessWidget {
     final text = TextEditingController();
     var occurredAt = DateTime.now();
     var flagged = false;
-    final saved = await showDialog<bool>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('New log entry'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DateDropdownEntry(
-                  value: occurredAt,
-                  label: 'When did this happen?',
-                  yearCount: 3,
-                  onChanged: (value) =>
-                      setDialogState(() => occurredAt = value),
-                ),
-                TextEntry(
-                  controller: text,
-                  label: 'What do you want to remember?',
-                  lines: 4,
-                ),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: flagged,
-                  onChanged: (value) =>
-                      setDialogState(() => flagged = value ?? false),
-                  title: const Text('Raise at my next visit'),
-                ),
-              ],
+    try {
+      final saved = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('New log entry'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DateDropdownEntry(
+                    value: occurredAt,
+                    label: 'When did this happen?',
+                    yearCount: 3,
+                    onChanged: (value) =>
+                        setDialogState(() => occurredAt = value),
+                  ),
+                  TextEntry(
+                    controller: text,
+                    label: 'What do you want to remember?',
+                    lines: 4,
+                  ),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: flagged,
+                    onChanged: (value) =>
+                        setDialogState(() => flagged = value ?? false),
+                    title: const Text('Raise at my next visit'),
+                  ),
+                ],
+              ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Save'),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (saved == true && text.text.trim().isNotEmpty) {
-      await state.addLog(
-        HealthLogEntry(
-          id: newId(),
-          occurredAt: occurredAt,
-          text: text.text.trim(),
-          flagged: flagged,
         ),
       );
+      if (saved == true && text.text.trim().isNotEmpty) {
+        await state.addLog(
+          HealthLogEntry(
+            id: newId(),
+            occurredAt: occurredAt,
+            text: text.text.trim(),
+            flagged: flagged,
+          ),
+        );
+      }
+    } finally {
+      text.dispose();
     }
   }
 }

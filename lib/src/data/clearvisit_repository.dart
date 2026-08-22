@@ -78,9 +78,6 @@ class ClearVisitRepository {
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
 
-  Future<void> delete(String table, String id) =>
-      database.db.delete(table, where: 'id = ?', whereArgs: [id]);
-
   Future<void> deleteEverything() => database.db.transaction((txn) async {
     for (final table in [
       'appointments',

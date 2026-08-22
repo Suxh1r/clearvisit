@@ -13,4 +13,3 @@ Future<void> main() async {
   await notifications.init();
   runApp(ClearVisitApp(repository: repository, notifications: notifications));
 }
-

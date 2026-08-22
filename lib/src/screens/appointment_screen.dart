@@ -120,97 +120,105 @@ class AppointmentScreen extends StatelessWidget {
       ...usedProviders,
       ..._providerTypes.where((type) => !usedProviders.contains(type)),
     ];
-    final saved = await showDialog<bool>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('New appointment'),
-          content: SizedBox(
-            width: 500,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  DateDropdownEntry(
-                    value: when,
-                    label: 'Appointment date',
-                    firstYearOffset: 0,
-                    yearCount: 4,
-                    onChanged: (picked) => setState(() => when = picked),
-                  ),
-                  TimeDropdownEntry(
-                    value: TimeOfDay.fromDateTime(when),
-                    label: 'Appointment time',
-                    onChanged: (picked) => setState(
-                      () => when = DateTime(
-                        when.year,
-                        when.month,
-                        when.day,
-                        picked.hour,
-                        picked.minute,
+    try {
+      final saved = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: const Text('New appointment'),
+            content: SizedBox(
+              width: 500,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    DateDropdownEntry(
+                      value: when,
+                      label: 'Appointment date',
+                      firstYearOffset: 0,
+                      yearCount: 4,
+                      onChanged: (picked) => setState(() => when = picked),
+                    ),
+                    TimeDropdownEntry(
+                      value: TimeOfDay.fromDateTime(when),
+                      label: 'Appointment time',
+                      onChanged: (picked) => setState(
+                        () => when = DateTime(
+                          when.year,
+                          when.month,
+                          when.day,
+                          picked.hour,
+                          picked.minute,
+                        ),
                       ),
                     ),
-                  ),
-                  DropdownEntry(
-                    controller: reason,
-                    label: 'Reason for visit',
-                    options: _reasonOptions,
-                  ),
-                  DropdownEntry(
-                    controller: provider,
-                    label: 'Provider or clinic',
-                    options: providerOptions,
-                  ),
-                  ReminderDropdown(
-                    value: reminderMinutes,
-                    choices: _reminderChoices,
-                    onChanged: (value) =>
-                        setState(() => reminderMinutes = value),
-                  ),
-                  TextEntry(
-                    controller: documents,
-                    label: 'Documents to bring',
-                    lines: 2,
-                  ),
-                  TextEntry(
-                    controller: symptoms,
-                    label: 'Symptoms or concerns',
-                    lines: 3,
-                  ),
-                  TextEntry(
-                    controller: questions,
-                    label: 'Questions to ask',
-                    lines: 3,
-                  ),
-                ],
+                    DropdownEntry(
+                      controller: reason,
+                      label: 'Reason for visit',
+                      options: _reasonOptions,
+                    ),
+                    DropdownEntry(
+                      controller: provider,
+                      label: 'Provider or clinic',
+                      options: providerOptions,
+                    ),
+                    ReminderDropdown(
+                      value: reminderMinutes,
+                      choices: _reminderChoices,
+                      onChanged: (value) =>
+                          setState(() => reminderMinutes = value),
+                    ),
+                    TextEntry(
+                      controller: documents,
+                      label: 'Documents to bring',
+                      lines: 2,
+                    ),
+                    TextEntry(
+                      controller: symptoms,
+                      label: 'Symptoms or concerns',
+                      lines: 3,
+                    ),
+                    TextEntry(
+                      controller: questions,
+                      label: 'Questions to ask',
+                      lines: 3,
+                    ),
+                  ],
+                ),
               ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Save'),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (saved == true && reason.text.trim().isNotEmpty) {
-      await state.addAppointment(
-        Appointment(
-          id: newId(),
-          date: when,
-          reason: reason.text.trim(),
-          provider: provider.text.trim(),
-          documents: documents.text.trim(),
-          symptoms: symptoms.text.trim(),
-          questions: questions.text.trim(),
-          reminderMinutes: reminderMinutes,
         ),
       );
+      if (saved == true && reason.text.trim().isNotEmpty) {
+        await state.addAppointment(
+          Appointment(
+            id: newId(),
+            date: when,
+            reason: reason.text.trim(),
+            provider: provider.text.trim(),
+            documents: documents.text.trim(),
+            symptoms: symptoms.text.trim(),
+            questions: questions.text.trim(),
+            reminderMinutes: reminderMinutes,
+          ),
+        );
+      }
+    } finally {
+      reason.dispose();
+      provider.dispose();
+      documents.dispose();
+      symptoms.dispose();
+      questions.dispose();
     }
   }
 

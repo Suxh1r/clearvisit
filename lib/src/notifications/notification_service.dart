@@ -48,11 +48,13 @@ class NotificationService {
       );
       await _plugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
+            IOSFlutterLocalNotificationsPlugin
+          >()
           ?.requestPermissions(alert: true, badge: true, sound: true);
       await _plugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.requestNotificationsPermission();
       _ready = true;
     } catch (error) {
@@ -74,8 +76,10 @@ class NotificationService {
 
       for (final value in appointments) {
         if (value.reminderMinutes < 0) continue;
-        final when = tz.TZDateTime.from(value.date, tz.local)
-            .subtract(Duration(minutes: value.reminderMinutes));
+        final when = tz.TZDateTime.from(
+          value.date,
+          tz.local,
+        ).subtract(Duration(minutes: value.reminderMinutes));
         if (!when.isAfter(now)) continue;
         await _plugin.zonedSchedule(
           id++,
@@ -98,17 +102,24 @@ class NotificationService {
           final minute = int.tryParse(parts[1]);
           if (hour == null || minute == null) continue;
           var when = tz.TZDateTime(
-                  tz.local, now.year, now.month, now.day, hour, minute)
-              .subtract(Duration(minutes: value.reminderMinutes));
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            hour,
+            minute,
+          ).subtract(Duration(minutes: value.reminderMinutes));
           while (!when.isAfter(now)) {
             when = when.add(const Duration(days: 1));
           }
           await _plugin.zonedSchedule(
             id++,
             'Medication reminder',
-            [value.name, value.strength, value.dose]
-                .where((part) => part.isNotEmpty)
-                .join(' • '),
+            [
+              value.name,
+              value.strength,
+              value.dose,
+            ].where((part) => part.isNotEmpty).join(' • '),
             when,
             _details,
             androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

@@ -89,78 +89,85 @@ class MeasurementScreen extends StatelessWidget {
     final unit = TextEditingController();
     final measurementContext = TextEditingController();
     var measuredAt = DateTime.now();
-    final saved = await showDialog<bool>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final units =
-              _measurementUnits[type.text] ??
-              const ['mg/dL', 'mmHg', 'lb', 'kg', 'bpm', '%'];
-          return AlertDialog(
-            title: const Text('Add measurement'),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  DateDropdownEntry(
-                    value: measuredAt,
-                    label: 'Measurement date',
-                    yearCount: 3,
-                    onChanged: (date) =>
-                        setDialogState(() => measuredAt = date),
-                  ),
-                  DropdownEntry(
-                    controller: type,
-                    label: 'Type',
-                    options: _measurementUnits.keys.toList(),
-                    otherHint: 'Enter measurement type',
-                    onChanged: (_) => setDialogState(() => unit.clear()),
-                  ),
-                  TextEntry(
-                    controller: value,
-                    label: 'Value',
-                    keyboardType: TextInputType.number,
-                  ),
-                  DropdownEntry(
-                    controller: unit,
-                    label: 'Unit',
-                    options: units,
-                  ),
-                  DropdownEntry(
-                    controller: measurementContext,
-                    label: 'Context',
-                    options: _measurementContexts,
-                    otherHint: 'Enter context',
-                  ),
-                ],
+    try {
+      final saved = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setDialogState) {
+            final units =
+                _measurementUnits[type.text] ??
+                const ['mg/dL', 'mmHg', 'lb', 'kg', 'bpm', '%'];
+            return AlertDialog(
+              title: const Text('Add measurement'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    DateDropdownEntry(
+                      value: measuredAt,
+                      label: 'Measurement date',
+                      yearCount: 3,
+                      onChanged: (date) =>
+                          setDialogState(() => measuredAt = date),
+                    ),
+                    DropdownEntry(
+                      controller: type,
+                      label: 'Type',
+                      options: _measurementUnits.keys.toList(),
+                      otherHint: 'Enter measurement type',
+                      onChanged: (_) => setDialogState(() => unit.clear()),
+                    ),
+                    TextEntry(
+                      controller: value,
+                      label: 'Value',
+                      keyboardType: TextInputType.number,
+                    ),
+                    DropdownEntry(
+                      controller: unit,
+                      label: 'Unit',
+                      options: units,
+                    ),
+                    DropdownEntry(
+                      controller: measurementContext,
+                      label: 'Context',
+                      options: _measurementContexts,
+                      otherHint: 'Enter context',
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    if (saved == true &&
-        type.text.trim().isNotEmpty &&
-        value.text.trim().isNotEmpty) {
-      await state.addMeasurement(
-        Measurement(
-          id: newId(),
-          measuredAt: measuredAt,
-          type: type.text.trim(),
-          value: value.text.trim(),
-          unit: unit.text.trim(),
-          context: measurementContext.text.trim(),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
         ),
       );
+      if (saved == true &&
+          type.text.trim().isNotEmpty &&
+          value.text.trim().isNotEmpty) {
+        await state.addMeasurement(
+          Measurement(
+            id: newId(),
+            measuredAt: measuredAt,
+            type: type.text.trim(),
+            value: value.text.trim(),
+            unit: unit.text.trim(),
+            context: measurementContext.text.trim(),
+          ),
+        );
+      }
+    } finally {
+      type.dispose();
+      value.dispose();
+      unit.dispose();
+      measurementContext.dispose();
     }
   }
 }

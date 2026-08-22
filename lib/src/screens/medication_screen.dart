@@ -104,125 +104,135 @@ class MedicationScreen extends StatelessWidget {
     final notes = TextEditingController();
     var times = <TimeOfDay>[];
     var reminderMinutes = -1;
-    final saved = await showDialog<bool>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          final knownStrengths = MedicationCatalog.strengthsFor(name.text);
-          final strengthOptions = knownStrengths.isNotEmpty
-              ? knownStrengths
-              : MedicationCatalog.genericStrengths;
-          return AlertDialog(
-            title: const Text('Add medication'),
-            content: SizedBox(
-              width: 500,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    AutocompleteEntry(
-                      controller: name,
-                      label: 'Medication name',
-                      optionsBuilder: MedicationCatalog.search,
-                      onChanged: (_) => setState(() {}),
-                      onSelected: (_) => setState(() {}),
-                    ),
-                    DropdownEntry(
-                      controller: strength,
-                      label: 'Strength',
-                      options: strengthOptions,
-                    ),
-                    DropdownEntry(
-                      controller: dose,
-                      label: 'Dose',
-                      options: MedicationCatalog.doseOptions,
-                    ),
-                    DropdownEntry(
-                      controller: schedule,
-                      label: 'When you take it',
-                      options: MedicationCatalog.scheduleOptions,
-                      onChanged: (value) =>
-                          setState(() => times = _seedTimes(value)),
-                    ),
-                    const FormSectionLabel('Times you take it'),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            for (var i = 0; i < times.length; i++)
-                              InputChip(
-                                label: Text(formatTimeOfDay(times[i])),
+    try {
+      final saved = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) {
+            final knownStrengths = MedicationCatalog.strengthsFor(name.text);
+            final strengthOptions = knownStrengths.isNotEmpty
+                ? knownStrengths
+                : MedicationCatalog.genericStrengths;
+            return AlertDialog(
+              title: const Text('Add medication'),
+              content: SizedBox(
+                width: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      AutocompleteEntry(
+                        controller: name,
+                        label: 'Medication name',
+                        optionsBuilder: MedicationCatalog.search,
+                        onChanged: (_) => setState(() {}),
+                        onSelected: (_) => setState(() {}),
+                      ),
+                      DropdownEntry(
+                        controller: strength,
+                        label: 'Strength',
+                        options: strengthOptions,
+                      ),
+                      DropdownEntry(
+                        controller: dose,
+                        label: 'Dose',
+                        options: MedicationCatalog.doseOptions,
+                      ),
+                      DropdownEntry(
+                        controller: schedule,
+                        label: 'When you take it',
+                        options: MedicationCatalog.scheduleOptions,
+                        onChanged: (value) =>
+                            setState(() => times = _seedTimes(value)),
+                      ),
+                      const FormSectionLabel('Times you take it'),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (var i = 0; i < times.length; i++)
+                                InputChip(
+                                  label: Text(formatTimeOfDay(times[i])),
+                                  onPressed: () async {
+                                    final picked = await _pickTimeDropdown(
+                                      context,
+                                      times[i],
+                                    );
+                                    if (picked != null) {
+                                      setState(() => times[i] = picked);
+                                    }
+                                  },
+                                  onDeleted: () =>
+                                      setState(() => times.removeAt(i)),
+                                ),
+                              ActionChip(
+                                avatar: const Icon(Icons.add, size: 18),
+                                label: const Text('Add time'),
                                 onPressed: () async {
                                   final picked = await _pickTimeDropdown(
                                     context,
-                                    times[i],
+                                    const TimeOfDay(hour: 8, minute: 0),
                                   );
                                   if (picked != null) {
-                                    setState(() => times[i] = picked);
+                                    setState(() => times.add(picked));
                                   }
                                 },
-                                onDeleted: () =>
-                                    setState(() => times.removeAt(i)),
                               ),
-                            ActionChip(
-                              avatar: const Icon(Icons.add, size: 18),
-                              label: const Text('Add time'),
-                              onPressed: () async {
-                                final picked = await _pickTimeDropdown(
-                                  context,
-                                  const TimeOfDay(hour: 8, minute: 0),
-                                );
-                                if (picked != null) {
-                                  setState(() => times.add(picked));
-                                }
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    ReminderDropdown(
-                      value: reminderMinutes,
-                      choices: _reminderChoices,
-                      onChanged: (value) =>
-                          setState(() => reminderMinutes = value),
-                    ),
-                    TextEntry(controller: notes, label: 'Notes', lines: 2),
-                  ],
+                      ReminderDropdown(
+                        value: reminderMinutes,
+                        choices: _reminderChoices,
+                        onChanged: (value) =>
+                            setState(() => reminderMinutes = value),
+                      ),
+                      TextEntry(controller: notes, label: 'Notes', lines: 2),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    if (saved == true && name.text.trim().isNotEmpty) {
-      times.sort((a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute));
-      await state.addMedication(
-        Medication(
-          id: newId(),
-          name: name.text.trim(),
-          strength: strength.text.trim(),
-          dose: dose.text.trim(),
-          schedule: schedule.text.trim(),
-          notes: notes.text.trim(),
-          times: times.map(timeToStorage).toList(),
-          reminderMinutes: reminderMinutes,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
         ),
       );
+      if (saved == true && name.text.trim().isNotEmpty) {
+        times.sort(
+          (a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute),
+        );
+        await state.addMedication(
+          Medication(
+            id: newId(),
+            name: name.text.trim(),
+            strength: strength.text.trim(),
+            dose: dose.text.trim(),
+            schedule: schedule.text.trim(),
+            notes: notes.text.trim(),
+            times: times.map(timeToStorage).toList(),
+            reminderMinutes: reminderMinutes,
+          ),
+        );
+      }
+    } finally {
+      name.dispose();
+      strength.dispose();
+      dose.dispose();
+      schedule.dispose();
+      notes.dispose();
     }
   }
 

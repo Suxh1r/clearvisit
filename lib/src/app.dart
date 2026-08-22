@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'app_state.dart';
 import 'data/clearvisit_repository.dart';
 import 'notifications/notification_service.dart';
+import 'screens/ai_screen.dart';
 import 'screens/appointment_screen.dart';
 import 'screens/health_log_screen.dart';
 import 'screens/medication_screen.dart';
@@ -142,6 +143,7 @@ class _HomeShellState extends State<HomeShell> {
       MedicationScreen(state: widget.state),
       HealthLogScreen(state: widget.state),
       MeasurementScreen(state: widget.state),
+      AiScreen(state: widget.state),
       SettingsScreen(state: widget.state),
     ];
     return Scaffold(
@@ -163,6 +165,7 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.monitor_heart),
             label: 'Track',
           ),
+          NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'AI'),
           NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),

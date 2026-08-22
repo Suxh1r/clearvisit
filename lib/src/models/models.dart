@@ -2,7 +2,10 @@ import 'dart:math';
 
 String newId() {
   final random = Random.secure();
-  final suffix = List.generate(12, (_) => random.nextInt(16).toRadixString(16)).join();
+  final suffix = List.generate(
+    12,
+    (_) => random.nextInt(16).toRadixString(16),
+  ).join();
   return '${DateTime.now().microsecondsSinceEpoch}-$suffix';
 }
 
@@ -30,26 +33,26 @@ class Appointment {
   final int reminderMinutes;
 
   Map<String, Object?> toMap() => {
-        'id': id,
-        'date': date.toIso8601String(),
-        'reason': reason,
-        'provider': provider,
-        'documents': documents,
-        'symptoms': symptoms,
-        'questions': questions,
-        'reminder_minutes': reminderMinutes,
-      };
+    'id': id,
+    'date': date.toIso8601String(),
+    'reason': reason,
+    'provider': provider,
+    'documents': documents,
+    'symptoms': symptoms,
+    'questions': questions,
+    'reminder_minutes': reminderMinutes,
+  };
 
   factory Appointment.fromMap(Map<String, Object?> map) => Appointment(
-        id: map['id']! as String,
-        date: DateTime.parse(map['date']! as String),
-        reason: map['reason']! as String,
-        provider: map['provider']! as String,
-        documents: map['documents']! as String,
-        symptoms: map['symptoms']! as String,
-        questions: map['questions']! as String,
-        reminderMinutes: (map['reminder_minutes'] as num?)?.toInt() ?? -1,
-      );
+    id: map['id']! as String,
+    date: DateTime.parse(map['date']! as String),
+    reason: map['reason']! as String,
+    provider: map['provider']! as String,
+    documents: map['documents']! as String,
+    symptoms: map['symptoms']! as String,
+    questions: map['questions']! as String,
+    reminderMinutes: (map['reminder_minutes'] as num?)?.toInt() ?? -1,
+  );
 }
 
 class Medication {
@@ -80,31 +83,31 @@ class Medication {
   final int reminderMinutes;
 
   Map<String, Object?> toMap() => {
-        'id': id,
-        'name': name,
-        'strength': strength,
-        'dose': dose,
-        'schedule': schedule,
-        'notes': notes,
-        'active': active ? 1 : 0,
-        'times': times.join(','),
-        'reminder_minutes': reminderMinutes,
-      };
+    'id': id,
+    'name': name,
+    'strength': strength,
+    'dose': dose,
+    'schedule': schedule,
+    'notes': notes,
+    'active': active ? 1 : 0,
+    'times': times.join(','),
+    'reminder_minutes': reminderMinutes,
+  };
 
   factory Medication.fromMap(Map<String, Object?> map) => Medication(
-        id: map['id']! as String,
-        name: map['name']! as String,
-        strength: map['strength']! as String,
-        dose: map['dose']! as String,
-        schedule: map['schedule']! as String,
-        notes: map['notes']! as String,
-        active: map['active'] == 1,
-        times: ((map['times'] as String?) ?? '')
-            .split(',')
-            .where((value) => value.trim().isNotEmpty)
-            .toList(),
-        reminderMinutes: (map['reminder_minutes'] as num?)?.toInt() ?? -1,
-      );
+    id: map['id']! as String,
+    name: map['name']! as String,
+    strength: map['strength']! as String,
+    dose: map['dose']! as String,
+    schedule: map['schedule']! as String,
+    notes: map['notes']! as String,
+    active: map['active'] == 1,
+    times: ((map['times'] as String?) ?? '')
+        .split(',')
+        .where((value) => value.trim().isNotEmpty)
+        .toList(),
+    reminderMinutes: (map['reminder_minutes'] as num?)?.toInt() ?? -1,
+  );
 }
 
 class HealthLogEntry {
@@ -121,18 +124,18 @@ class HealthLogEntry {
   final bool flagged;
 
   Map<String, Object?> toMap() => {
-        'id': id,
-        'occurred_at': occurredAt.toIso8601String(),
-        'text': text,
-        'flagged': flagged ? 1 : 0,
-      };
+    'id': id,
+    'occurred_at': occurredAt.toIso8601String(),
+    'text': text,
+    'flagged': flagged ? 1 : 0,
+  };
 
   factory HealthLogEntry.fromMap(Map<String, Object?> map) => HealthLogEntry(
-        id: map['id']! as String,
-        occurredAt: DateTime.parse(map['occurred_at']! as String),
-        text: map['text']! as String,
-        flagged: map['flagged'] == 1,
-      );
+    id: map['id']! as String,
+    occurredAt: DateTime.parse(map['occurred_at']! as String),
+    text: map['text']! as String,
+    flagged: map['flagged'] == 1,
+  );
 }
 
 class Measurement {
@@ -153,21 +156,20 @@ class Measurement {
   final String context;
 
   Map<String, Object?> toMap() => {
-        'id': id,
-        'measured_at': measuredAt.toIso8601String(),
-        'type': type,
-        'value': value,
-        'unit': unit,
-        'context': context,
-      };
+    'id': id,
+    'measured_at': measuredAt.toIso8601String(),
+    'type': type,
+    'value': value,
+    'unit': unit,
+    'context': context,
+  };
 
   factory Measurement.fromMap(Map<String, Object?> map) => Measurement(
-        id: map['id']! as String,
-        measuredAt: DateTime.parse(map['measured_at']! as String),
-        type: map['type']! as String,
-        value: map['value']! as String,
-        unit: map['unit']! as String,
-        context: map['context']! as String,
-      );
+    id: map['id']! as String,
+    measuredAt: DateTime.parse(map['measured_at']! as String),
+    type: map['type']! as String,
+    value: map['value']! as String,
+    unit: map['unit']! as String,
+    context: map['context']! as String,
+  );
 }
-
