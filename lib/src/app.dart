@@ -58,18 +58,18 @@ class _ClearVisitAppState extends State<ClearVisitApp> {
   ThemeData _clearVisitTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final colors = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF146C60),
+      seedColor: const Color(0xFF02569B),
       brightness: brightness,
     );
-    final scaffold = isDark ? const Color(0xFF071512) : const Color(0xFFF7FAF9);
-    final surface = isDark ? const Color(0xFF10211D) : Colors.white;
+    final scaffold = isDark ? const Color(0xFF06131F) : const Color(0xFFF4FAFF);
+    final surface = isDark ? const Color(0xFF0D2233) : Colors.white;
     final surfaceVariant = isDark
-        ? const Color(0xFF18332D)
-        : const Color(0xFFE0F2ED);
-    final outline = isDark ? const Color(0xFF294940) : const Color(0xFFE0ECE8);
+        ? const Color(0xFF12324A)
+        : const Color(0xFFE1F3FF);
+    final outline = isDark ? const Color(0xFF284B63) : const Color(0xFFCFE8F8);
     final textColor = isDark
-        ? const Color(0xFFEAF4F1)
-        : const Color(0xFF13201D);
+        ? const Color(0xFFEAF6FF)
+        : const Color(0xFF0B1F33);
 
     return ThemeData(
       colorScheme: colors.copyWith(
@@ -116,7 +116,7 @@ class _ClearVisitAppState extends State<ClearVisitApp> {
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(18)),
-          borderSide: BorderSide(color: Color(0xFF146C60), width: 2),
+          borderSide: BorderSide(color: Color(0xFF02569B), width: 2),
         ),
         alignLabelWithHint: true,
       ),

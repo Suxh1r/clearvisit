@@ -132,7 +132,7 @@ class _ThemeModeCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'White and green stays the default. Use dark mode when it is easier on your eyes.',
+                      'The app now follows the blue logo palette. Use dark mode when it is easier on your eyes.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colors.onSurfaceVariant,
                         height: 1.3,

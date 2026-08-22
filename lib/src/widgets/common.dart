@@ -107,8 +107,8 @@ class ScreenIntro extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
-              ? [const Color(0xFF0E3B34), const Color(0xFF15584D)]
-              : [colors.primary, const Color(0xFF2C9C8C)],
+              ? [const Color(0xFF03395E), const Color(0xFF02569B)]
+              : [const Color(0xFF54C5F8), const Color(0xFF02569B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
