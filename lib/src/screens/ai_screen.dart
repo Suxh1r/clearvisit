@@ -68,6 +68,7 @@ class _AiScreenState extends State<AiScreen> {
       final result = await _assistant.explain(_explainController.text);
       if (!mounted) return;
       setState(() => _explanation = result);
+      await _showExplanationDialog(result);
     } catch (_) {
       if (!mounted) return;
       _showError('Could not explain that text. Please try again.');
@@ -83,6 +84,7 @@ class _AiScreenState extends State<AiScreen> {
       final result = await _assistant.createDrafts(_draftController.text);
       if (!mounted) return;
       setState(() => _drafts = result);
+      await _showDraftsDialog(result);
     } catch (_) {
       if (!mounted) return;
       _showError('Could not create drafts from that text. Please try again.');
@@ -91,7 +93,7 @@ class _AiScreenState extends State<AiScreen> {
     }
   }
 
-  Future<void> _saveDraft(AiDraft draft) async {
+  Future<bool> _saveDraft(AiDraft draft) async {
     try {
       switch (draft.type) {
         case AiDraftType.appointment:
@@ -112,21 +114,109 @@ class _AiScreenState extends State<AiScreen> {
           break;
       }
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted) return false;
       _showError('Could not save that draft. Please try again.');
-      return;
+      return false;
     }
-    if (!mounted) return;
+    if (!mounted) return true;
     setState(() => _drafts = _drafts.where((item) => item != draft).toList());
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Added ${draft.title}')));
+    return true;
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _showExplanationDialog(AiExplanation explanation) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.auto_awesome),
+        title: const Text('AI explanation ready'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ResultSection(
+                title: 'Plain-language summary',
+                values: [explanation.summary],
+              ),
+              _ResultSection(
+                title: 'Important details',
+                values: explanation.importantDetails,
+              ),
+              _ResultSection(
+                title: 'Questions to ask',
+                values: explanation.questionsToAsk,
+              ),
+              _ResultSection(
+                title: 'Safety notes',
+                values: explanation.cautions,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showDraftsDialog(List<AiDraft> drafts) {
+    final visibleDrafts = [...drafts];
+    return showDialog<void>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          icon: const Icon(Icons.playlist_add_check_circle_outlined),
+          title: const Text('AI drafts ready'),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    visibleDrafts.isEmpty
+                        ? 'All suggested entries have been added.'
+                        : 'Review each suggestion before adding it to ClearVisit.',
+                  ),
+                  const SizedBox(height: 16),
+                  for (final draft in visibleDrafts)
+                    _DraftTile(
+                      draft: draft,
+                      onSave: () async {
+                        final saved = await _saveDraft(draft);
+                        if (context.mounted) {
+                          if (saved) {
+                            setDialogState(() => visibleDrafts.remove(draft));
+                          }
+                        }
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -187,25 +277,63 @@ class _ExplainCard extends StatelessWidget {
             label: Text(loading ? 'Explaining...' : 'Explain'),
           ),
         ),
-        if (explanation != null) ...[
-          const SizedBox(height: 18),
-          _ResultSection(
-            title: 'Plain-language summary',
-            values: [explanation!.summary],
+        if (explanation != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: OutlinedButton.icon(
+              onPressed: loading
+                  ? null
+                  : () => _showExplanationFromCard(context, explanation!),
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('View last explanation'),
+            ),
           ),
-          _ResultSection(
-            title: 'Important details',
-            values: explanation!.importantDetails,
-          ),
-          _ResultSection(
-            title: 'Questions to ask',
-            values: explanation!.questionsToAsk,
-          ),
-          _ResultSection(title: 'Safety notes', values: explanation!.cautions),
-        ],
       ],
     ),
   );
+
+  Future<void> _showExplanationFromCard(
+    BuildContext context,
+    AiExplanation explanation,
+  ) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.auto_awesome),
+        title: const Text('AI explanation'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ResultSection(
+                title: 'Plain-language summary',
+                values: [explanation.summary],
+              ),
+              _ResultSection(
+                title: 'Important details',
+                values: explanation.importantDetails,
+              ),
+              _ResultSection(
+                title: 'Questions to ask',
+                values: explanation.questionsToAsk,
+              ),
+              _ResultSection(
+                title: 'Safety notes',
+                values: explanation.cautions,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _DraftCard extends StatelessWidget {
@@ -221,7 +349,7 @@ class _DraftCard extends StatelessWidget {
   final List<AiDraft> drafts;
   final bool loading;
   final VoidCallback onDraft;
-  final ValueChanged<AiDraft> onSaveDraft;
+  final Future<bool> Function(AiDraft draft) onSaveDraft;
 
   @override
   Widget build(BuildContext context) => _Panel(
@@ -258,13 +386,69 @@ class _DraftCard extends StatelessWidget {
           ),
         ),
         if (drafts.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          for (final draft in drafts)
-            _DraftTile(draft: draft, onSave: () => onSaveDraft(draft)),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: loading
+                ? null
+                : () => _showDraftsFromCard(context, drafts, onSaveDraft),
+            icon: const Icon(Icons.open_in_new),
+            label: Text(
+              'View ${drafts.length} draft${drafts.length == 1 ? '' : 's'}',
+            ),
+          ),
         ],
       ],
     ),
   );
+
+  Future<void> _showDraftsFromCard(
+    BuildContext context,
+    List<AiDraft> drafts,
+    Future<bool> Function(AiDraft draft) onSaveDraft,
+  ) {
+    final visibleDrafts = [...drafts];
+    return showDialog<void>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          icon: const Icon(Icons.playlist_add_check_circle_outlined),
+          title: const Text('AI drafts'),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    visibleDrafts.isEmpty
+                        ? 'All suggested entries have been added.'
+                        : 'Review each suggestion before adding it to ClearVisit.',
+                  ),
+                  const SizedBox(height: 16),
+                  for (final draft in visibleDrafts)
+                    _DraftTile(
+                      draft: draft,
+                      onSave: () async {
+                        final saved = await onSaveDraft(draft);
+                        if (context.mounted && saved) {
+                          setDialogState(() => visibleDrafts.remove(draft));
+                        }
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _Panel extends StatelessWidget {
