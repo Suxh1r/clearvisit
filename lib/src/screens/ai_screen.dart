@@ -32,16 +32,12 @@ class _AiScreenState extends State<AiScreen> {
   @override
   Widget build(BuildContext context) => ListView(
     children: [
-      const ScreenIntro(
-        title: 'AI helper',
-        body:
-            'Explain confusing text and turn notes into reviewable ClearVisit entries. Nothing is sent to a cloud AI in this local preview.',
-      ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
         child: Column(
           children: [
-            _SafetyCard(),
+            const _CompactAiIntro(),
+            const _SafetyNotice(),
             _ExplainCard(
               controller: _explainController,
               explanation: _explanation,
@@ -220,14 +216,113 @@ class _AiScreenState extends State<AiScreen> {
   }
 }
 
-class _SafetyCard extends StatelessWidget {
+class _CompactAiIntro extends StatelessWidget {
+  const _CompactAiIntro();
+
   @override
-  Widget build(BuildContext context) => const SummaryCard(
-    icon: Icons.privacy_tip_outlined,
-    title: 'Review before saving',
-    subtitle:
-        'AI suggestions are drafts. ClearVisit does not diagnose, treat, check medication safety, or replace professional advice.',
-  );
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF54C5F8), Color(0xFF02569B)],
+          ),
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [
+            BoxShadow(
+              color: colors.primary.withAlpha(30),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.auto_awesome, color: Colors.white, size: 34),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI helper',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Explain confusing text or create reviewable ClearVisit drafts.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withAlpha(235),
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SafetyNotice extends StatelessWidget {
+  const _SafetyNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: colors.primaryContainer,
+                child: Icon(
+                  Icons.privacy_tip_outlined,
+                  color: colors.onPrimaryContainer,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Review before saving',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'AI creates drafts only. It does not diagnose, treat, or check medication safety.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _ExplainCard extends StatelessWidget {
@@ -247,8 +342,8 @@ class _ExplainCard extends StatelessWidget {
   Widget build(BuildContext context) => _Panel(
     icon: Icons.article_outlined,
     title: 'Explain pasted text',
-    subtitle:
-        'For letters, insurance notices, appointment instructions, or billing text.',
+    subtitle: 'Letters, insurance notices, visit instructions, or bills.',
+    actionLabel: explanation == null ? 'Open paste box' : 'Open or view result',
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -265,7 +360,7 @@ class _ExplainCard extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 58,
           child: FilledButton.icon(
             onPressed: loading ? null : onExplain,
             icon: loading
@@ -355,8 +450,8 @@ class _DraftCard extends StatelessWidget {
   Widget build(BuildContext context) => _Panel(
     icon: Icons.playlist_add_check_circle_outlined,
     title: 'Create entries from text',
-    subtitle:
-        'Paste a note like “appointment 9/12 at 2 PM” or “blood sugar 120 mg/dL before breakfast.”',
+    subtitle: 'Turn notes into visits, meds, notes, or vitals.',
+    actionLabel: drafts.isEmpty ? 'Open paste box' : 'Open or view drafts',
     child: Column(
       children: [
         TextField(
@@ -373,7 +468,7 @@ class _DraftCard extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 58,
           child: FilledButton.icon(
             onPressed: loading ? null : onDraft,
             icon: loading
@@ -456,61 +551,61 @@ class _Panel extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.actionLabel,
     required this.child,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final String actionLabel;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: colors.primaryContainer,
-                    child: Icon(icon, color: colors.onPrimaryContainer),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w900),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: colors.onSurfaceVariant,
-                                height: 1.3,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              child,
-            ],
+        clipBehavior: Clip.antiAlias,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+          childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
+          leading: CircleAvatar(
+            radius: 21,
+            backgroundColor: colors.primaryContainer,
+            child: Icon(icon, color: colors.onPrimaryContainer, size: 25),
           ),
+          title: Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  actionLabel,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: colors.primary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          children: [child],
         ),
       ),
     );

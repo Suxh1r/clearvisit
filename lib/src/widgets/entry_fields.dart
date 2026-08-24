@@ -78,12 +78,12 @@ class DateDropdownEntry extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -104,7 +104,7 @@ class DateDropdownEntry extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 flex: 3,
                 child: DropdownButtonFormField<int>(
@@ -124,7 +124,7 @@ class DateDropdownEntry extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           DropdownButtonFormField<int>(
             key: ValueKey('year-${value.year}-${value.month}-${value.day}'),
             initialValue: years.contains(value.year) ? value.year : currentYear,
@@ -163,12 +163,12 @@ class TimeDropdownEntry extends StatelessWidget {
     final period = value.period;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -187,7 +187,7 @@ class TimeDropdownEntry extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: DropdownButtonFormField<int>(
                   key: ValueKey('minute-${value.hour}-${value.minute}'),
@@ -206,7 +206,7 @@ class TimeDropdownEntry extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: DropdownButtonFormField<DayPeriod>(
                   key: ValueKey('period-${value.hour}-${value.minute}'),
@@ -251,7 +251,7 @@ class _AutocompleteEntryState extends State<AutocompleteEntry> {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: 14),
     child: LayoutBuilder(
       builder: (context, constraints) => RawAutocomplete<String>(
         textEditingController: widget.controller,
@@ -316,7 +316,7 @@ class ReminderDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: 14),
     child: DropdownButtonFormField<int>(
       initialValue: value,
       isExpanded: true,
@@ -397,9 +397,10 @@ class _DropdownEntryState extends State<DropdownEntry> {
     // No preset options: fall back to a plain text field.
     if (widget.options.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.only(bottom: 14),
         child: TextField(
           controller: widget.controller,
+          style: Theme.of(context).textTheme.bodyLarge,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(labelText: widget.label),
         ),
@@ -440,10 +441,11 @@ class _DropdownEntryState extends State<DropdownEntry> {
           ),
           if (_selected == _other)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 14),
               child: TextField(
                 controller: widget.controller,
                 autofocus: true,
+                style: Theme.of(context).textTheme.bodyLarge,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   labelText:

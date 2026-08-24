@@ -49,10 +49,10 @@ class EmptyState extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(18),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(30),
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: BorderRadius.circular(28),
@@ -62,9 +62,9 @@ class EmptyState extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
-                radius: 34,
+                radius: 38,
                 backgroundColor: colors.primaryContainer,
-                child: Icon(icon, size: 36, color: colors.onPrimaryContainer),
+                child: Icon(icon, size: 40, color: colors.onPrimaryContainer),
               ),
               const SizedBox(height: 18),
               Text(
@@ -103,7 +103,7 @@ class ScreenIntro extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
@@ -136,8 +136,8 @@ class ScreenIntro extends StatelessWidget {
           Text(
             body,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.92),
-              height: 1.35,
+              color: Colors.white.withValues(alpha: 0.95),
+              height: 1.45,
             ),
           ),
         ],
@@ -162,11 +162,12 @@ class TextEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: 14),
     child: TextField(
       controller: controller,
       maxLines: lines,
       keyboardType: keyboardType,
+      style: Theme.of(context).textTheme.bodyLarge,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(labelText: label),
     ),
@@ -196,18 +197,19 @@ class SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Card(
         child: InkWell(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  radius: 24,
+                  radius: 28,
                   backgroundColor: colors.primaryContainer,
-                  child: Icon(icon, color: colors.onPrimaryContainer),
+                  child: Icon(icon, size: 30, color: colors.onPrimaryContainer),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +222,11 @@ class SummaryCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colors.onSurfaceVariant,
-                          height: 1.3,
+                          height: 1.42,
                         ),
                       ),
                     ],

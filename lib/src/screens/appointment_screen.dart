@@ -58,7 +58,7 @@ class AppointmentScreen extends StatelessWidget {
                         'Add an upcoming appointment and the questions you want to ask.',
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
                     itemCount: state.appointments.length,
                     itemBuilder: (context, index) {
                       final value = state.appointments[index];
@@ -74,10 +74,10 @@ class AppointmentScreen extends StatelessWidget {
                   ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
             child: SizedBox(
               width: double.infinity,
-              height: 54,
+              height: 60,
               child: FilledButton.icon(
                 onPressed: () => _add(context),
                 icon: const Icon(Icons.add),

@@ -28,7 +28,7 @@ class HealthLogScreen extends StatelessWidget {
                       'Add a short note whenever something feels worth remembering.',
                 )
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                  padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
                   children: state.healthLog
                       .map(
                         (value) => SummaryCard(
@@ -44,10 +44,10 @@ class HealthLogScreen extends StatelessWidget {
                 ),
         ),
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
           child: SizedBox(
             width: double.infinity,
-            height: 54,
+            height: 60,
             child: FilledButton.icon(
               onPressed: () => _add(context),
               icon: const Icon(Icons.add),
