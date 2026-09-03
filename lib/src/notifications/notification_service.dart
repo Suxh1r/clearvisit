@@ -5,10 +5,11 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../models/models.dart';
+import 'reminder_service.dart';
 
 /// Schedules local (on-device) reminders for appointments and medications.
 /// Nothing leaves the device.
-class NotificationService {
+class NotificationService implements ReminderService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _ready = false;
@@ -64,6 +65,7 @@ class NotificationService {
 
   /// Cancels everything and reschedules reminders for the given data.
   /// Called after every data change so reminders always match the database.
+  @override
   Future<void> sync(
     List<Appointment> appointments,
     List<Medication> medications,

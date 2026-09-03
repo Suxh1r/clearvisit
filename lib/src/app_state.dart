@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'data/clearvisit_repository.dart';
 import 'models/models.dart';
-import 'notifications/notification_service.dart';
+import 'notifications/reminder_service.dart';
 
 class AppState extends ChangeNotifier {
-  AppState(this.repository, {this.notifications});
+  AppState(this.repository, {this.reminders});
 
   final ClearVisitRepository repository;
-  final NotificationService? notifications;
+  final ReminderService? reminders;
   bool loading = true;
   ThemeMode themeMode = ThemeMode.system;
   List<Appointment> appointments = [];
@@ -33,7 +33,7 @@ class AppState extends ChangeNotifier {
     themeMode = _themeModeFromName(values[4] as String?);
     loading = false;
     notifyListeners();
-    await notifications?.sync(appointments, medications);
+    await reminders?.sync(appointments, medications);
   }
 
   Future<void> setThemeMode(ThemeMode value) async {
