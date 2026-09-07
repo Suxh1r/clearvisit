@@ -16,7 +16,7 @@ class SettingsScreen extends StatelessWidget {
         const ScreenIntro(
           title: 'Privacy and settings',
           body:
-              'ClearVisit stores your entries in an encrypted database on this device.',
+              'ClearCue stores your entries in an encrypted database on this device.',
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
@@ -30,13 +30,13 @@ class SettingsScreen extends StatelessWidget {
                 icon: Icons.cloud_off,
                 title: 'No cloud sync',
                 subtitle:
-                    'This version does not send your health entries to ClearVisit or GCP.',
+                    'This version does not send your health entries to ClearCue or GCP.',
               ),
               const SummaryCard(
                 icon: Icons.medical_information_outlined,
                 title: 'Personal organizer only',
                 subtitle:
-                    'ClearVisit does not provide medical advice, diagnosis, monitoring, or treatment.',
+                    'ClearCue does not provide medical advice, diagnosis, monitoring, or treatment.',
               ),
               const SummaryCard(
                 icon: Icons.backup_outlined,
@@ -48,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
                 icon: Icons.delete_forever,
                 title: 'Delete everything',
                 subtitle:
-                    'Permanently removes all ClearVisit records from this device.',
+                    'Permanently removes all ClearCue records from this device.',
                 trailing: Icon(
                   Icons.chevron_right,
                   color: Theme.of(context).colorScheme.error,
@@ -57,7 +57,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'If you may be having a medical emergency, contact local emergency services. Do not rely on ClearVisit.',
+                'If you may be having a medical emergency, contact local emergency services. Do not rely on ClearCue.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.35,

@@ -19,7 +19,7 @@
 
 ## Milestone 3 — User-controlled portability
 
-- Versioned encrypted `.clearvisit` backup format
+- Versioned encrypted `.clearcue` backup format
 - Passphrase-based key derivation with recovery warning
 - Restore validation, preview, and rollback
 - Temporary-file cleanup and share-sheet privacy warnings
@@ -40,4 +40,3 @@
 - Generic signed app configuration
 - Central security logging and alerting
 - No health data or user identity in the control plane
-

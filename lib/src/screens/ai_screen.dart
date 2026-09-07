@@ -185,7 +185,7 @@ class _AiScreenState extends State<AiScreen> {
                   Text(
                     visibleDrafts.isEmpty
                         ? 'All suggested entries have been added.'
-                        : 'Review each suggestion before adding it to ClearVisit.',
+                        : 'Review each suggestion before adding it to ClearCue.',
                   ),
                   const SizedBox(height: 16),
                   for (final draft in visibleDrafts)
@@ -258,7 +258,7 @@ class _CompactAiIntro extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Explain confusing text or create reviewable ClearVisit drafts.',
+                      'Explain confusing text or create reviewable ClearCue drafts.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white.withAlpha(235),
                         height: 1.3,
@@ -517,7 +517,7 @@ class _DraftCard extends StatelessWidget {
                   Text(
                     visibleDrafts.isEmpty
                         ? 'All suggested entries have been added.'
-                        : 'Review each suggestion before adding it to ClearVisit.',
+                        : 'Review each suggestion before adding it to ClearCue.',
                   ),
                   const SizedBox(height: 16),
                   for (final draft in visibleDrafts)

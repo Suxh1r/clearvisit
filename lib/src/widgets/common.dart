@@ -24,11 +24,13 @@ String timeToStorage(TimeOfDay value) =>
 
 /// Parses a 24-hour "HH:mm" storage string, or null if invalid.
 TimeOfDay? timeFromStorage(String value) {
+  if (!RegExp(r'^\d{2}:\d{2}$').hasMatch(value)) return null;
   final parts = value.split(':');
   if (parts.length != 2) return null;
   final hour = int.tryParse(parts[0]);
   final minute = int.tryParse(parts[1]);
   if (hour == null || minute == null) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
   return TimeOfDay(hour: hour, minute: minute);
 }
 

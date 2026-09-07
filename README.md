@@ -1,6 +1,6 @@
-# ClearVisit
+# ClearCue
 
-ClearVisit is a private, local-first mobile organizer for preparing for medical appointments, maintaining a medication list, and recording health notes and measurements.
+ClearCue is a private, local-first mobile organizer for preparing for medical appointments, maintaining a medication list, and recording health notes and measurements.
 
 It is not a medical device and does not provide medical advice, diagnosis, monitoring, or treatment.
 
@@ -30,9 +30,9 @@ Not yet implemented:
 
 ## Installed development environment
 
-The workspace now contains Flutter 3.44.4 under `.tools/flutter`. The Android SDK and `ClearVisit_API_36` emulator are installed under `%LOCALAPPDATA%\ClearVisitDev` to avoid OneDrive locking large emulator disk images.
+The workspace now contains Flutter 3.44.4 under `.tools/flutter`. The Android SDK and legacy-named `ClearVisit_API_36` emulator are installed under `%LOCALAPPDATA%\ClearVisitDev` to avoid OneDrive locking large emulator disk images.
 
-To launch the emulator and run ClearVisit:
+To launch the emulator and run ClearCue:
 
 ```powershell
 cd C:\Users\suchi\OneDrive\Documents\Codex\clearvisit

@@ -12,7 +12,7 @@ locals {
 }
 
 resource "google_folder" "clearvisit" {
-  display_name = "ClearVisit"
+  display_name = "ClearCue"
   parent       = "organizations/${var.organization_id}"
 }
 
@@ -32,4 +32,3 @@ resource "google_project" "project" {
 
 # The regulated-data project is intentionally absent. It must be introduced by
 # a separately reviewed change after BAA, legal, privacy, and security approval.
-

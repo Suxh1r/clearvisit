@@ -10,17 +10,17 @@ import 'screens/medication_screen.dart';
 import 'screens/measurement_screen.dart';
 import 'screens/settings_screen.dart';
 
-class ClearVisitApp extends StatefulWidget {
-  const ClearVisitApp({required this.repository, this.reminders, super.key});
+class ClearCueApp extends StatefulWidget {
+  const ClearCueApp({required this.repository, this.reminders, super.key});
 
   final ClearVisitRepository repository;
   final ReminderService? reminders;
 
   @override
-  State<ClearVisitApp> createState() => _ClearVisitAppState();
+  State<ClearCueApp> createState() => _ClearCueAppState();
 }
 
-class _ClearVisitAppState extends State<ClearVisitApp> {
+class _ClearCueAppState extends State<ClearCueApp> {
   late final AppState state;
 
   @override
@@ -40,17 +40,17 @@ class _ClearVisitAppState extends State<ClearVisitApp> {
     return AnimatedBuilder(
       animation: state,
       builder: (context, _) => MaterialApp(
-        title: 'ClearVisit',
+        title: 'ClearCue',
         debugShowCheckedModeBanner: false,
         themeMode: state.themeMode,
-        theme: _clearVisitTheme(Brightness.light),
-        darkTheme: _clearVisitTheme(Brightness.dark),
+        theme: _clearCueTheme(Brightness.light),
+        darkTheme: _clearCueTheme(Brightness.dark),
         home: HomeShell(state: state),
       ),
     );
   }
 
-  ThemeData _clearVisitTheme(Brightness brightness) {
+  ThemeData _clearCueTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final colors = ColorScheme.fromSeed(
       seedColor: const Color(0xFF02569B),
@@ -213,6 +213,10 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int selectedIndex = 0;
 
+  void _goHome() {
+    if (selectedIndex != 0) setState(() => selectedIndex = 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = [
@@ -226,27 +230,91 @@ class _HomeShellState extends State<HomeShell> {
       AiScreen(state: widget.state),
       SettingsScreen(state: widget.state),
     ];
-    return Scaffold(
-      appBar: AppBar(title: const Text('ClearVisit')),
-      body: SafeArea(child: screens[selectedIndex]),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (value) => setState(() => selectedIndex = value),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.event_note), label: 'Visits'),
-          NavigationDestination(icon: Icon(Icons.medication), label: 'Meds'),
-          NavigationDestination(icon: Icon(Icons.edit_note), label: 'Notes'),
-          NavigationDestination(
-            icon: Icon(Icons.monitor_heart),
-            label: 'Vitals',
+    return PopScope(
+      canPop: selectedIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goHome();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: selectedIndex == 0
+              ? null
+              : IconButton(
+                  key: const Key('section-back-button'),
+                  tooltip: 'Back to Home',
+                  onPressed: _goHome,
+                  icon: const Icon(Icons.arrow_back),
+                ),
+          titleSpacing: selectedIndex == 0 ? 16 : 0,
+          title: Semantics(
+            button: true,
+            label: 'ClearCue logo, go to Home',
+            child: InkWell(
+              key: const Key('home-logo-button'),
+              onTap: _goHome,
+              borderRadius: BorderRadius.circular(14),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _ClearCueMark(),
+                    SizedBox(width: 10),
+                    Text('ClearCue'),
+                  ],
+                ),
+              ),
+            ),
           ),
-          NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'AI'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
-        ],
+        ),
+        body: SafeArea(child: screens[selectedIndex]),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: selectedIndex,
+          onDestinationSelected: (value) =>
+              setState(() => selectedIndex = value),
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+            NavigationDestination(
+              icon: Icon(Icons.event_note),
+              label: 'Visits',
+            ),
+            NavigationDestination(icon: Icon(Icons.medication), label: 'Meds'),
+            NavigationDestination(icon: Icon(Icons.edit_note), label: 'Notes'),
+            NavigationDestination(
+              icon: Icon(Icons.monitor_heart),
+              label: 'Vitals',
+            ),
+            NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'AI'),
+            NavigationDestination(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _ClearCueMark extends StatelessWidget {
+  const _ClearCueMark();
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.primary,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: const SizedBox.square(
+      dimension: 38,
+      child: Icon(
+        Icons.health_and_safety_rounded,
+        color: Colors.white,
+        size: 24,
+      ),
+    ),
+  );
 }
 
 class HomeContentsScreen extends StatelessWidget {
@@ -291,7 +359,7 @@ class HomeContentsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Choose a section below. ClearVisit keeps your information organized on this device.',
+                  'Choose a section below. ClearCue keeps your information organized on this device.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colors.white.withAlpha(240),
                     height: 1.35,

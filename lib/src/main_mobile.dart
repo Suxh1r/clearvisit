@@ -11,5 +11,5 @@ Future<void> main() async {
   final repository = SqlClearVisitRepository(database);
   final notifications = NotificationService();
   await notifications.init();
-  runApp(ClearVisitApp(repository: repository, reminders: notifications));
+  runApp(ClearCueApp(repository: repository, reminders: notifications));
 }

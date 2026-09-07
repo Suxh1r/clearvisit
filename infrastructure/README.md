@@ -1,6 +1,6 @@
 # GCP infrastructure
 
-This Terraform is only a starting boundary: it creates the ClearVisit folder and public/security project separation. It deliberately does not create a regulated-data project or health-data services.
+This Terraform is only a starting boundary: it creates the ClearCue folder and public/security project separation. It deliberately does not create a regulated-data project or health-data services.
 
 Before applying:
 
@@ -12,4 +12,3 @@ Before applying:
 6. Run `terraform plan` through CI and require manual production approval.
 
 Do not place health information in Terraform variables, state, project names, resource names, labels, or logs.
-

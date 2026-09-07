@@ -1,6 +1,6 @@
 {
-    "name": "ClearVisit",
-    "short_name": "ClearVisit",
+    "name": "ClearCue",
+    "short_name": "ClearCue",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F4FAFF",

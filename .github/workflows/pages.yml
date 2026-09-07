@@ -1,4 +1,4 @@
-name: Deploy ClearVisit to GitHub Pages
+name: Deploy ClearCue to GitHub Pages
 
 on:
   push:

@@ -1,6 +1,6 @@
 # Work outside the code
 
-Software controls are only one part of launching ClearVisit. Each section below needs an accountable owner and documented evidence.
+Software controls are only one part of launching ClearCue. Each section below needs an accountable owner and documented evidence.
 
 ## 1. Company and product decisions
 
@@ -96,4 +96,3 @@ Software controls are only one part of launching ClearVisit. Each section below 
 ## 10. Future features
 
 Cloud backup, provider integrations, HealthKit/Health Connect, device imports, and AI document explanation each require a new privacy impact assessment, threat model, legal review, store-declaration update, and explicit user consent design before implementation.
-

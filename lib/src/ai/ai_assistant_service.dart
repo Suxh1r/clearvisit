@@ -68,7 +68,7 @@ class AiAssistantService {
           : keyLines,
       questionsToAsk: questions,
       cautions: const [
-        'ClearVisit can help organize confusing text, but it is not medical advice.',
+        'ClearCue can help organize confusing text, but it is not medical advice.',
         'Confirm important medical, insurance, billing, or medication decisions with the appropriate professional.',
       ],
     );
