@@ -14,12 +14,12 @@ The initial Flutter vertical slice includes:
 - Medication list
 - Flagged health log entries
 - Manual measurements without interpretation
+- Editing and confirmed individual deletion for every entry type
 - Local deletion of all records
 - Initial model tests
 
 Not yet implemented:
 
-- Editing and individual deletion
 - PDF generation and printing
 - Encrypted backup/restore
 - Biometric app lock and app-switcher privacy shield

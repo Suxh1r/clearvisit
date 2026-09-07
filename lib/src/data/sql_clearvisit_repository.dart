@@ -71,6 +71,25 @@ class SqlClearVisitRepository implements ClearVisitRepository {
   );
 
   @override
+  Future<void> deleteAppointment(String id) =>
+      database.db.delete('appointments', where: 'id = ?', whereArgs: [id]);
+
+  @override
+  Future<void> deleteMedication(String id) =>
+      database.db.delete('medications', where: 'id = ?', whereArgs: [id]);
+
+  @override
+  Future<void> deleteHealthLogEntry(String id) => database.db.delete(
+    'health_log_entries',
+    where: 'id = ?',
+    whereArgs: [id],
+  );
+
+  @override
+  Future<void> deleteMeasurement(String id) =>
+      database.db.delete('measurements', where: 'id = ?', whereArgs: [id]);
+
+  @override
   Future<String?> setting(String key) async {
     final rows = await database.db.query(
       'settings',

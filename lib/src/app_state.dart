@@ -62,6 +62,26 @@ class AppState extends ChangeNotifier {
     await load();
   }
 
+  Future<void> deleteAppointment(String id) async {
+    await repository.deleteAppointment(id);
+    await load();
+  }
+
+  Future<void> deleteMedication(String id) async {
+    await repository.deleteMedication(id);
+    await load();
+  }
+
+  Future<void> deleteLog(String id) async {
+    await repository.deleteHealthLogEntry(id);
+    await load();
+  }
+
+  Future<void> deleteMeasurement(String id) async {
+    await repository.deleteMeasurement(id);
+    await load();
+  }
+
   Future<void> deleteEverything() async {
     await repository.deleteEverything();
     await load();

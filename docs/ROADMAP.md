@@ -6,7 +6,6 @@
 - Apply native backup and file-protection controls
 - Add onboarding and precise privacy disclosure
 - Add biometric app lock and app-switcher shield
-- Complete edit/delete operations
 - Add migration and repository tests
 
 ## Milestone 2 — Core usefulness

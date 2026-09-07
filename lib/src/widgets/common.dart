@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
 
+enum EntryDialogAction { save, delete }
+
+Future<bool> confirmEntryDeletion(
+  BuildContext context,
+  String entryName,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Delete $entryName?'),
+      content: const Text('This action cannot be undone.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+  return confirmed ?? false;
+}
+
 String shortDate(DateTime value) => '${value.month}/${value.day}/${value.year}';
 
 String weekdayName(DateTime value) => const [
@@ -49,46 +78,60 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(30),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: colors.outline),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                radius: 38,
-                backgroundColor: colors.primaryContainer,
-                child: Icon(icon, size: 40, color: colors.onPrimaryContainer),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                body,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  height: 1.35,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minimumHeight = constraints.hasBoundedHeight
+            ? (constraints.maxHeight - 36).clamp(0.0, double.infinity)
+            : 0.0;
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(18),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minimumHeight),
+            child: Center(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: colors.outline),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 38,
+                      backgroundColor: colors.primaryContainer,
+                      child: Icon(
+                        icon,
+                        size: 40,
+                        color: colors.onPrimaryContainer,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      body,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

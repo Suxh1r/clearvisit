@@ -38,6 +38,8 @@ class HealthLogScreen extends StatelessWidget {
                           title: value.text,
                           subtitle:
                               '${weekdayName(value.occurredAt)}, ${shortDate(value.occurredAt)}${value.flagged ? ' • Raise at next visit' : ''}',
+                          trailing: const Icon(Icons.edit_outlined),
+                          onTap: () => _edit(context, value),
                         ),
                       )
                       .toList(),
@@ -49,7 +51,7 @@ class HealthLogScreen extends StatelessWidget {
             width: double.infinity,
             height: 60,
             child: FilledButton.icon(
-              onPressed: () => _add(context),
+              onPressed: () => _edit(context),
               icon: const Icon(Icons.add),
               label: const Text('Add log entry'),
             ),
@@ -59,16 +61,16 @@ class HealthLogScreen extends StatelessWidget {
     ),
   );
 
-  Future<void> _add(BuildContext context) async {
-    final text = TextEditingController();
-    var occurredAt = DateTime.now();
-    var flagged = false;
+  Future<void> _edit(BuildContext context, [HealthLogEntry? existing]) async {
+    final text = TextEditingController(text: existing?.text);
+    var occurredAt = existing?.occurredAt ?? DateTime.now();
+    var flagged = existing?.flagged ?? false;
     try {
-      final saved = await showDialog<bool>(
+      final route = DialogRoute<EntryDialogAction>(
         context: context,
         builder: (context) => StatefulBuilder(
           builder: (context, setDialogState) => AlertDialog(
-            title: const Text('New log entry'),
+            title: Text(existing == null ? 'New log entry' : 'Edit log entry'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -96,22 +98,39 @@ class HealthLogScreen extends StatelessWidget {
               ),
             ),
             actions: [
+              if (existing != null)
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pop(context, EntryDialogAction.delete),
+                  child: const Text('Delete'),
+                ),
               TextButton(
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel'),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Save'),
+                onPressed: () => Navigator.pop(context, EntryDialogAction.save),
+                child: Text(existing == null ? 'Save' : 'Update'),
               ),
             ],
           ),
         ),
       );
-      if (saved == true && text.text.trim().isNotEmpty) {
+      final action = await Navigator.of(
+        context,
+        rootNavigator: true,
+      ).push(route);
+      await route.completed;
+      if (action == EntryDialogAction.delete && existing != null) {
+        if (context.mounted &&
+            await confirmEntryDeletion(context, 'health log entry')) {
+          await state.deleteLog(existing.id);
+        }
+      } else if (action == EntryDialogAction.save &&
+          text.text.trim().isNotEmpty) {
         await state.addLog(
           HealthLogEntry(
-            id: newId(),
+            id: existing?.id ?? newId(),
             occurredAt: occurredAt,
             text: text.text.trim(),
             flagged: flagged,

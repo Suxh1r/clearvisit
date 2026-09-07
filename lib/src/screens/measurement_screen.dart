@@ -62,6 +62,7 @@ class MeasurementScreen extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w900),
                           ),
+                          onTap: () => _edit(context, value),
                         ),
                       )
                       .toList(),
@@ -73,7 +74,7 @@ class MeasurementScreen extends StatelessWidget {
             width: double.infinity,
             height: 60,
             child: FilledButton.icon(
-              onPressed: () => _add(context),
+              onPressed: () => _edit(context),
               icon: const Icon(Icons.add),
               label: const Text('Add measurement'),
             ),
@@ -83,14 +84,14 @@ class MeasurementScreen extends StatelessWidget {
     ),
   );
 
-  Future<void> _add(BuildContext context) async {
-    final type = TextEditingController();
-    final value = TextEditingController();
-    final unit = TextEditingController();
-    final measurementContext = TextEditingController();
-    var measuredAt = DateTime.now();
+  Future<void> _edit(BuildContext context, [Measurement? existing]) async {
+    final type = TextEditingController(text: existing?.type);
+    final value = TextEditingController(text: existing?.value);
+    final unit = TextEditingController(text: existing?.unit);
+    final measurementContext = TextEditingController(text: existing?.context);
+    var measuredAt = existing?.measuredAt ?? DateTime.now();
     try {
-      final saved = await showDialog<bool>(
+      final route = DialogRoute<EntryDialogAction>(
         context: context,
         builder: (context) => StatefulBuilder(
           builder: (context, setDialogState) {
@@ -98,7 +99,9 @@ class MeasurementScreen extends StatelessWidget {
                 _measurementUnits[type.text] ??
                 const ['mg/dL', 'mmHg', 'lb', 'kg', 'bpm', '%'];
             return AlertDialog(
-              title: const Text('Add measurement'),
+              title: Text(
+                existing == null ? 'Add measurement' : 'Edit measurement',
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -136,25 +139,42 @@ class MeasurementScreen extends StatelessWidget {
                 ),
               ),
               actions: [
+                if (existing != null)
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.pop(context, EntryDialogAction.delete),
+                    child: const Text('Delete'),
+                  ),
                 TextButton(
-                  onPressed: () => Navigator.pop(context, false),
+                  onPressed: () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Save'),
+                  onPressed: () =>
+                      Navigator.pop(context, EntryDialogAction.save),
+                  child: Text(existing == null ? 'Save' : 'Update'),
                 ),
               ],
             );
           },
         ),
       );
-      if (saved == true &&
+      final action = await Navigator.of(
+        context,
+        rootNavigator: true,
+      ).push(route);
+      await route.completed;
+      if (action == EntryDialogAction.delete && existing != null) {
+        if (context.mounted &&
+            await confirmEntryDeletion(context, 'measurement')) {
+          await state.deleteMeasurement(existing.id);
+        }
+      } else if (action == EntryDialogAction.save &&
           type.text.trim().isNotEmpty &&
           value.text.trim().isNotEmpty) {
         await state.addMeasurement(
           Measurement(
-            id: newId(),
+            id: existing?.id ?? newId(),
             measuredAt: measuredAt,
             type: type.text.trim(),
             value: value.text.trim(),

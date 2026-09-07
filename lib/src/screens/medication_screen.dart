@@ -47,6 +47,8 @@ class MedicationScreen extends StatelessWidget {
                                 })
                                 .join(', '),
                           ].where((part) => part.isNotEmpty).join(' • '),
+                          trailing: const Icon(Icons.edit_outlined),
+                          onTap: () => _edit(context, value),
                         ),
                       )
                       .toList(),
@@ -58,7 +60,7 @@ class MedicationScreen extends StatelessWidget {
             width: double.infinity,
             height: 60,
             child: FilledButton.icon(
-              onPressed: () => _add(context),
+              onPressed: () => _edit(context),
               icon: const Icon(Icons.add),
               label: const Text('Add medication'),
             ),
@@ -96,16 +98,18 @@ class MedicationScreen extends StatelessWidget {
         .toList();
   }
 
-  Future<void> _add(BuildContext context) async {
-    final name = TextEditingController();
-    final strength = TextEditingController();
-    final dose = TextEditingController();
-    final schedule = TextEditingController();
-    final notes = TextEditingController();
-    var times = <TimeOfDay>[];
-    var reminderMinutes = -1;
+  Future<void> _edit(BuildContext context, [Medication? existing]) async {
+    final name = TextEditingController(text: existing?.name);
+    final strength = TextEditingController(text: existing?.strength);
+    final dose = TextEditingController(text: existing?.dose);
+    final schedule = TextEditingController(text: existing?.schedule);
+    final notes = TextEditingController(text: existing?.notes);
+    var times =
+        existing?.times.map(timeFromStorage).whereType<TimeOfDay>().toList() ??
+        <TimeOfDay>[];
+    var reminderMinutes = existing?.reminderMinutes ?? -1;
     try {
-      final saved = await showDialog<bool>(
+      final route = DialogRoute<EntryDialogAction>(
         context: context,
         builder: (context) => StatefulBuilder(
           builder: (context, setState) {
@@ -114,7 +118,9 @@ class MedicationScreen extends StatelessWidget {
                 ? knownStrengths
                 : MedicationCatalog.genericStrengths;
             return AlertDialog(
-              title: const Text('Add medication'),
+              title: Text(
+                existing == null ? 'Add medication' : 'Edit medication',
+              ),
               content: SizedBox(
                 width: 500,
                 child: SingleChildScrollView(
@@ -197,31 +203,50 @@ class MedicationScreen extends StatelessWidget {
                 ),
               ),
               actions: [
+                if (existing != null)
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.pop(context, EntryDialogAction.delete),
+                    child: const Text('Delete'),
+                  ),
                 TextButton(
-                  onPressed: () => Navigator.pop(context, false),
+                  onPressed: () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Save'),
+                  onPressed: () =>
+                      Navigator.pop(context, EntryDialogAction.save),
+                  child: Text(existing == null ? 'Save' : 'Update'),
                 ),
               ],
             );
           },
         ),
       );
-      if (saved == true && name.text.trim().isNotEmpty) {
+      final action = await Navigator.of(
+        context,
+        rootNavigator: true,
+      ).push(route);
+      await route.completed;
+      if (action == EntryDialogAction.delete && existing != null) {
+        if (context.mounted &&
+            await confirmEntryDeletion(context, 'medication')) {
+          await state.deleteMedication(existing.id);
+        }
+      } else if (action == EntryDialogAction.save &&
+          name.text.trim().isNotEmpty) {
         times.sort(
           (a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute),
         );
         await state.addMedication(
           Medication(
-            id: newId(),
+            id: existing?.id ?? newId(),
             name: name.text.trim(),
             strength: strength.text.trim(),
             dose: dose.text.trim(),
             schedule: schedule.text.trim(),
             notes: notes.text.trim(),
+            active: existing?.active ?? true,
             times: times.map(timeToStorage).toList(),
             reminderMinutes: reminderMinutes,
           ),

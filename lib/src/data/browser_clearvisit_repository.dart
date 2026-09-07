@@ -62,6 +62,19 @@ class BrowserClearVisitRepository implements ClearVisitRepository {
       _upsert('measurements', value.toMap());
 
   @override
+  Future<void> deleteAppointment(String id) => _deleteById('appointments', id);
+
+  @override
+  Future<void> deleteMedication(String id) => _deleteById('medications', id);
+
+  @override
+  Future<void> deleteHealthLogEntry(String id) =>
+      _deleteById('health_log_entries', id);
+
+  @override
+  Future<void> deleteMeasurement(String id) => _deleteById('measurements', id);
+
+  @override
   Future<String?> setting(String key) async =>
       html.window.localStorage[_storageKey('settings.$key')];
 
@@ -105,6 +118,11 @@ class BrowserClearVisitRepository implements ClearVisitRepository {
     } else {
       rows.add(value);
     }
+    html.window.localStorage[_storageKey(key)] = jsonEncode(rows);
+  }
+
+  Future<void> _deleteById(String key, String id) async {
+    final rows = _readRawList(key)..removeWhere((row) => row['id'] == id);
     html.window.localStorage[_storageKey(key)] = jsonEncode(rows);
   }
 

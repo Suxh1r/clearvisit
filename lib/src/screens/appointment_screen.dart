@@ -79,7 +79,7 @@ class AppointmentScreen extends StatelessWidget {
               width: double.infinity,
               height: 60,
               child: FilledButton.icon(
-                onPressed: () => _add(context),
+                onPressed: () => _edit(context),
                 icon: const Icon(Icons.add),
                 label: const Text('Add appointment'),
               ),
@@ -102,15 +102,17 @@ class AppointmentScreen extends StatelessWidget {
     1440: '1 day before',
   };
 
-  Future<void> _add(BuildContext context) async {
-    final reason = TextEditingController();
-    final provider = TextEditingController();
-    final documents = TextEditingController();
-    final symptoms = TextEditingController();
-    final questions = TextEditingController();
+  Future<void> _edit(BuildContext context, [Appointment? existing]) async {
+    final reason = TextEditingController(text: existing?.reason);
+    final provider = TextEditingController(text: existing?.provider);
+    final documents = TextEditingController(text: existing?.documents);
+    final symptoms = TextEditingController(text: existing?.symptoms);
+    final questions = TextEditingController(text: existing?.questions);
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    var when = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 9, 0);
-    var reminderMinutes = -1;
+    var when =
+        existing?.date ??
+        DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 9, 0);
+    var reminderMinutes = existing?.reminderMinutes ?? -1;
     final usedProviders = state.appointments
         .map((value) => value.provider.trim())
         .where((value) => value.isNotEmpty)
@@ -121,11 +123,13 @@ class AppointmentScreen extends StatelessWidget {
       ..._providerTypes.where((type) => !usedProviders.contains(type)),
     ];
     try {
-      final saved = await showDialog<bool>(
+      final route = DialogRoute<EntryDialogAction>(
         context: context,
         builder: (context) => StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: const Text('New appointment'),
+            title: Text(
+              existing == null ? 'New appointment' : 'Edit appointment',
+            ),
             content: SizedBox(
               width: 500,
               child: SingleChildScrollView(
@@ -187,22 +191,39 @@ class AppointmentScreen extends StatelessWidget {
               ),
             ),
             actions: [
+              if (existing != null)
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pop(context, EntryDialogAction.delete),
+                  child: const Text('Delete'),
+                ),
               TextButton(
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel'),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Save'),
+                onPressed: () => Navigator.pop(context, EntryDialogAction.save),
+                child: Text(existing == null ? 'Save' : 'Update'),
               ),
             ],
           ),
         ),
       );
-      if (saved == true && reason.text.trim().isNotEmpty) {
+      final action = await Navigator.of(
+        context,
+        rootNavigator: true,
+      ).push(route);
+      await route.completed;
+      if (action == EntryDialogAction.delete && existing != null) {
+        if (context.mounted &&
+            await confirmEntryDeletion(context, 'appointment')) {
+          await state.deleteAppointment(existing.id);
+        }
+      } else if (action == EntryDialogAction.save &&
+          reason.text.trim().isNotEmpty) {
         await state.addAppointment(
           Appointment(
-            id: newId(),
+            id: existing?.id ?? newId(),
             date: when,
             reason: reason.text.trim(),
             provider: provider.text.trim(),
@@ -222,8 +243,8 @@ class AppointmentScreen extends StatelessWidget {
     }
   }
 
-  void _showSummary(BuildContext context, Appointment value) {
-    showModalBottomSheet<void>(
+  Future<void> _showSummary(BuildContext context, Appointment value) async {
+    final edit = await showModalBottomSheet<bool>(
       context: context,
       showDragHandle: true,
       builder: (context) => ListView(
@@ -243,9 +264,16 @@ class AppointmentScreen extends StatelessWidget {
           _section('Bring', value.documents),
           _section('Mention', value.symptoms),
           _section('Ask', value.questions),
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Edit appointment'),
+          ),
         ],
       ),
     );
+    if (edit == true && context.mounted) await _edit(context, value);
   }
 
   Widget _section(String title, String value) => Padding(
