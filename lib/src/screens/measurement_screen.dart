@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_state.dart';
 import '../models/models.dart';
+import '../models/entry_validation.dart';
 import '../widgets/common.dart';
 import '../widgets/entry_fields.dart';
 
@@ -56,7 +57,7 @@ class MeasurementScreen extends StatelessWidget {
                           icon: Icons.monitor_heart_outlined,
                           title: value.type,
                           subtitle:
-                              '${weekdayName(value.measuredAt)}, ${shortDate(value.measuredAt)}${value.context.isEmpty ? '' : ' • ${value.context}'}',
+                              '${weekdayName(value.measuredAt)}, ${shortDate(value.measuredAt)} at ${formatTimeOfDay(TimeOfDay.fromDateTime(value.measuredAt))}${value.context.isEmpty ? '' : ' • ${value.context}'}',
                           trailing: Text(
                             '${value.value} ${value.unit}',
                             style: Theme.of(context).textTheme.titleMedium
@@ -89,6 +90,13 @@ class MeasurementScreen extends StatelessWidget {
     final value = TextEditingController(text: existing?.value);
     final unit = TextEditingController(text: existing?.unit);
     final measurementContext = TextEditingController(text: existing?.context);
+    final systolic = TextEditingController(
+      text: existing?.systolic?.toString(),
+    );
+    final diastolic = TextEditingController(
+      text: existing?.diastolic?.toString(),
+    );
+    String? error;
     var measuredAt = existing?.measuredAt ?? DateTime.now();
     try {
       final route = DialogRoute<EntryDialogAction>(
@@ -99,8 +107,11 @@ class MeasurementScreen extends StatelessWidget {
                 _measurementUnits[type.text] ??
                 const ['mg/dL', 'mmHg', 'lb', 'kg', 'bpm', '%'];
             return AlertDialog(
-              title: Text(
-                existing == null ? 'Add measurement' : 'Edit measurement',
+              title: EntryDialogTitle(
+                title: existing == null
+                    ? 'Add measurement'
+                    : 'Edit measurement',
+                error: error,
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -117,18 +128,54 @@ class MeasurementScreen extends StatelessWidget {
                       label: 'Type',
                       options: _measurementUnits.keys.toList(),
                       otherHint: 'Enter measurement type',
-                      onChanged: (_) => setDialogState(() => unit.clear()),
+                      onChanged: (selected) => setDialogState(() {
+                        final choices = _measurementUnits[selected];
+                        unit.text = choices?.length == 1 ? choices!.single : '';
+                      }),
                     ),
-                    TextEntry(
-                      controller: value,
-                      label: 'Value',
-                      keyboardType: TextInputType.number,
+                    TimeDropdownEntry(
+                      value: TimeOfDay.fromDateTime(measuredAt),
+                      label: 'Measurement time',
+                      onChanged: (time) => setDialogState(
+                        () => measuredAt = DateTime(
+                          measuredAt.year,
+                          measuredAt.month,
+                          measuredAt.day,
+                          time.hour,
+                          time.minute,
+                        ),
+                      ),
                     ),
-                    DropdownEntry(
-                      controller: unit,
-                      label: 'Unit',
-                      options: units,
-                    ),
+                    if (type.text == 'Blood pressure') ...[
+                      const Text(
+                        'Copy both numbers from your monitor. Unit: mmHg.',
+                      ),
+                      const SizedBox(height: 12),
+                      TextEntry(
+                        controller: systolic,
+                        label: 'Systolic (top number)',
+                        keyboardType: TextInputType.number,
+                      ),
+                      TextEntry(
+                        controller: diastolic,
+                        label: 'Diastolic (bottom number)',
+                        keyboardType: TextInputType.number,
+                      ),
+                    ] else
+                      TextEntry(
+                        controller: value,
+                        label: 'Value',
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
+                        ),
+                      ),
+                    if (type.text != 'Blood pressure')
+                      DropdownEntry(
+                        controller: unit,
+                        label: 'Unit',
+                        options: units,
+                      ),
                     DropdownEntry(
                       controller: measurementContext,
                       label: 'Context',
@@ -150,8 +197,25 @@ class MeasurementScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () =>
-                      Navigator.pop(context, EntryDialogAction.save),
+                  onPressed: () {
+                    final message = measurementEntryError(
+                      type: type.text,
+                      value: value.text,
+                      unit: unit.text,
+                      systolic: systolic.text,
+                      diastolic: diastolic.text,
+                    );
+                    if (message != null) {
+                      setDialogState(() => error = message);
+                    } else if (measuredAt.isAfter(DateTime.now())) {
+                      setDialogState(
+                        () => error =
+                            'Choose when this reading was actually taken, not a future time.',
+                      );
+                    } else {
+                      Navigator.pop(context, EntryDialogAction.save);
+                    }
+                  },
                   child: Text(existing == null ? 'Save' : 'Update'),
                 ),
               ],
@@ -170,15 +234,16 @@ class MeasurementScreen extends StatelessWidget {
           await state.deleteMeasurement(existing.id);
         }
       } else if (action == EntryDialogAction.save &&
-          type.text.trim().isNotEmpty &&
-          value.text.trim().isNotEmpty) {
+          type.text.trim().isNotEmpty) {
         await state.addMeasurement(
           Measurement(
             id: existing?.id ?? newId(),
             measuredAt: measuredAt,
             type: type.text.trim(),
-            value: value.text.trim(),
-            unit: unit.text.trim(),
+            value: type.text == 'Blood pressure'
+                ? '${systolic.text.trim()}/${diastolic.text.trim()}'
+                : value.text.trim(),
+            unit: type.text == 'Blood pressure' ? 'mmHg' : unit.text.trim(),
             context: measurementContext.text.trim(),
           ),
         );
@@ -188,6 +253,8 @@ class MeasurementScreen extends StatelessWidget {
       value.dispose();
       unit.dispose();
       measurementContext.dispose();
+      systolic.dispose();
+      diastolic.dispose();
     }
   }
 }

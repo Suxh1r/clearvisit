@@ -155,6 +155,14 @@ class Measurement {
   final String unit;
   final String context;
 
+  /// Keep legacy "120/80" records compatible without a database migration.
+  int? get systolic => type == 'Blood pressure'
+      ? int.tryParse(value.split('/').first.trim())
+      : null;
+  int? get diastolic => type == 'Blood pressure' && value.split('/').length == 2
+      ? int.tryParse(value.split('/')[1].trim())
+      : null;
+
   Map<String, Object?> toMap() => {
     'id': id,
     'measured_at': measuredAt.toIso8601String(),

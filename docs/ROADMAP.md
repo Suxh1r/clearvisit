@@ -18,9 +18,9 @@
 
 ## Milestone 3 — User-controlled portability
 
-- Versioned encrypted `.clearcue` backup format
-- Passphrase-based key derivation with recovery warning
-- Restore validation, preview, and rollback
+- Completed: versioned encrypted `.clearcue` backups with passphrase-based encryption
+- Completed: validated restore preview; add missing records without overwriting existing records
+- Remaining: atomic restore transaction and additional physical-device file-picker tests
 - Temporary-file cleanup and share-sheet privacy warnings
 
 ## Milestone 4 — Production quality

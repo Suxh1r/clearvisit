@@ -113,6 +113,7 @@ class AppointmentScreen extends StatelessWidget {
         existing?.date ??
         DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 9, 0);
     var reminderMinutes = existing?.reminderMinutes ?? -1;
+    String? error;
     final usedProviders = state.appointments
         .map((value) => value.provider.trim())
         .where((value) => value.isNotEmpty)
@@ -127,8 +128,9 @@ class AppointmentScreen extends StatelessWidget {
         context: context,
         builder: (context) => StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: Text(
-              existing == null ? 'New appointment' : 'Edit appointment',
+            title: EntryDialogTitle(
+              title: existing == null ? 'New appointment' : 'Edit appointment',
+              error: error,
             ),
             content: SizedBox(
               width: 500,
@@ -202,7 +204,23 @@ class AppointmentScreen extends StatelessWidget {
                 child: const Text('Cancel'),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(context, EntryDialogAction.save),
+                onPressed: () {
+                  if (reason.text.trim().isEmpty) {
+                    setState(
+                      () => error = 'Choose or enter a reason for this visit.',
+                    );
+                  } else if (reminderMinutes >= 0 &&
+                      !when
+                          .subtract(Duration(minutes: reminderMinutes))
+                          .isAfter(DateTime.now())) {
+                    setState(
+                      () => error =
+                          'This reminder time has already passed. Choose a future reminder or No reminder.',
+                    );
+                  } else {
+                    Navigator.pop(context, EntryDialogAction.save);
+                  }
+                },
                 child: Text(existing == null ? 'Save' : 'Update'),
               ),
             ],

@@ -65,12 +65,16 @@ class HealthLogScreen extends StatelessWidget {
     final text = TextEditingController(text: existing?.text);
     var occurredAt = existing?.occurredAt ?? DateTime.now();
     var flagged = existing?.flagged ?? false;
+    String? error;
     try {
       final route = DialogRoute<EntryDialogAction>(
         context: context,
         builder: (context) => StatefulBuilder(
           builder: (context, setDialogState) => AlertDialog(
-            title: Text(existing == null ? 'New log entry' : 'Edit log entry'),
+            title: EntryDialogTitle(
+              title: existing == null ? 'New log entry' : 'Edit log entry',
+              error: error,
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -109,7 +113,18 @@ class HealthLogScreen extends StatelessWidget {
                 child: const Text('Cancel'),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(context, EntryDialogAction.save),
+                onPressed: () {
+                  if (text.text.trim().isEmpty) {
+                    setDialogState(() => error = 'Write a note before saving.');
+                  } else if (occurredAt.isAfter(DateTime.now())) {
+                    setDialogState(
+                      () => error =
+                          'Choose the date this happened, not a future date.',
+                    );
+                  } else {
+                    Navigator.pop(context, EntryDialogAction.save);
+                  }
+                },
                 child: Text(existing == null ? 'Save' : 'Update'),
               ),
             ],

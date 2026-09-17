@@ -5,6 +5,51 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('blood pressure edits separate top and bottom numbers', (
+    tester,
+  ) async {
+    final repository = _FakeRepository(
+      measurements: [
+        Measurement(
+          id: 'pressure-1',
+          measuredAt: DateTime(2026, 9, 1),
+          type: 'Blood pressure',
+          value: '120/80',
+          unit: 'mmHg',
+        ),
+      ],
+    );
+    await tester.pumpWidget(ClearCueApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Vitals'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Blood pressure'));
+    await tester.pumpAndSettle();
+    final fields = find.byType(TextField);
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, '120');
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, '80');
+    await tester.enterText(fields.at(0), '125');
+    await tester.enterText(fields.at(1), '85');
+    await tester.tap(find.text('Update'));
+    await tester.pumpAndSettle();
+    expect(repository._measurements.single.id, 'pressure-1');
+    expect(repository._measurements.single.value, '125/85');
+  });
+
+  testWidgets('empty notes show an error without dismissing the form', (
+    tester,
+  ) async {
+    await tester.pumpWidget(ClearCueApp(repository: _FakeRepository()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Notes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add log entry'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(find.text('Write a note before saving.'), findsOneWidget);
+    expect(find.text('New log entry'), findsOneWidget);
+  });
   testWidgets('AI page has a back button that returns Home', (tester) async {
     await tester.pumpWidget(ClearCueApp(repository: _FakeRepository()));
     await tester.pumpAndSettle();

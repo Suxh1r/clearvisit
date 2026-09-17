@@ -61,6 +61,8 @@ class DateDropdownEntry extends StatelessWidget {
       yearCount,
       (index) => currentYear + firstYearOffset + index,
     );
+    if (!years.contains(value.year)) years.add(value.year);
+    years.sort();
     final daysInMonth = DateUtils.getDaysInMonth(value.year, value.month);
     final day = value.day.clamp(1, daysInMonth);
 
@@ -127,7 +129,7 @@ class DateDropdownEntry extends StatelessWidget {
           const SizedBox(height: 10),
           DropdownButtonFormField<int>(
             key: ValueKey('year-${value.year}-${value.month}-${value.day}'),
-            initialValue: years.contains(value.year) ? value.year : currentYear,
+            initialValue: value.year,
             decoration: const InputDecoration(labelText: 'Year'),
             items: [
               for (final year in years)
@@ -158,8 +160,7 @@ class TimeDropdownEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hour = value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod;
-    final roundedMinute = (value.minute / 5).round() * 5;
-    final minute = roundedMinute == 60 ? 55 : roundedMinute;
+    final minute = value.minute;
     final period = value.period;
 
     return Padding(
@@ -194,7 +195,7 @@ class TimeDropdownEntry extends StatelessWidget {
                   initialValue: minute,
                   decoration: const InputDecoration(labelText: 'Minute'),
                   items: [
-                    for (var i = 0; i < 60; i += 5)
+                    for (var i = 0; i < 60; i++)
                       DropdownMenuItem(
                         value: i,
                         child: Text(i.toString().padLeft(2, '0')),
@@ -380,15 +381,11 @@ class _DropdownEntryState extends State<DropdownEntry> {
   @override
   void didUpdateWidget(DropdownEntry oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!listEquals(oldWidget.options, widget.options)) {
-      // Options changed (for example, a different medication was picked).
-      // Keep "Other" selections; reset a preset that no longer exists.
-      if (_selected != null &&
-          _selected != _other &&
-          !widget.options.contains(_selected)) {
-        _selected = null;
-        widget.controller.clear();
-      }
+    if (!listEquals(oldWidget.options, widget.options) ||
+        (_selected != _other &&
+            widget.controller.text.trim() != (_selected ?? ''))) {
+      // Preserve custom text and reflect externally selected defaults.
+      _syncFromController();
     }
   }
 
@@ -413,7 +410,9 @@ class _DropdownEntryState extends State<DropdownEntry> {
           DropdownButtonFormField<String>(
             // Recreate the field when the option list changes so the
             // displayed selection stays in sync.
-            key: ValueKey(Object.hashAll(widget.options)),
+            key: ValueKey(
+              Object.hash(_selected, Object.hashAll(widget.options)),
+            ),
             initialValue: _selected,
             isExpanded: true,
             decoration: InputDecoration(labelText: widget.label),

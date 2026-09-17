@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../app_state.dart';
 import '../widgets/common.dart';
+import '../widgets/backup_card.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({required this.state, super.key});
@@ -13,10 +15,11 @@ class SettingsScreen extends StatelessWidget {
     builder: (context, _) => ListView(
       padding: EdgeInsets.zero,
       children: [
-        const ScreenIntro(
+        ScreenIntro(
           title: 'Privacy and settings',
-          body:
-              'ClearCue stores your entries in an encrypted database on this device.',
+          body: kIsWeb
+              ? 'Your entries stay in this browser. Save a backup before clearing browser data.'
+              : 'Your entries stay in an encrypted database on this device.',
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
@@ -26,23 +29,12 @@ class SettingsScreen extends StatelessWidget {
                 value: state.themeMode,
                 onChanged: state.setThemeMode,
               ),
-              const SummaryCard(
-                icon: Icons.cloud_off,
-                title: 'No cloud sync',
-                subtitle:
-                    'This version does not send your health entries to ClearCue or GCP.',
-              ),
-              const SummaryCard(
-                icon: Icons.medical_information_outlined,
-                title: 'Personal organizer only',
-                subtitle:
-                    'ClearCue does not provide medical advice, diagnosis, monitoring, or treatment.',
-              ),
-              const SummaryCard(
-                icon: Icons.backup_outlined,
-                title: 'Encrypted backup',
-                subtitle:
-                    'Planned: user-controlled encrypted export and restore.',
+              BackupCard(state: state),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 18),
+                child: Text(
+                  'Notes\nNo cloud sync: ClearCue does not automatically upload your entries.\n\nPersonal organizer only: ClearCue does not provide medical advice, diagnosis, monitoring, or treatment.',
+                ),
               ),
               SummaryCard(
                 icon: Icons.delete_forever,

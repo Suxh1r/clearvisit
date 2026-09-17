@@ -2,6 +2,45 @@ import 'package:flutter/material.dart';
 
 enum EntryDialogAction { save, delete }
 
+class EntryDialogTitle extends StatelessWidget {
+  const EntryDialogTitle({required this.title, this.error, super.key});
+  final String title;
+  final String? error;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title),
+      if (error != null) ...[
+        const SizedBox(height: 8),
+        EntryValidationMessage(message: error!),
+      ],
+    ],
+  );
+}
+
+class EntryValidationMessage extends StatelessWidget {
+  const EntryValidationMessage({required this.message, super.key});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Semantics(
+      liveRegion: true,
+      child: Text(
+        message,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.error,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  );
+}
+
 Future<bool> confirmEntryDeletion(
   BuildContext context,
   String entryName,

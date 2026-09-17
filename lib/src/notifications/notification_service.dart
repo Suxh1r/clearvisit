@@ -5,6 +5,7 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../models/models.dart';
+import '../models/entry_validation.dart';
 import 'reminder_service.dart';
 
 /// Schedules local (on-device) reminders for appointments and medications.
@@ -96,13 +97,18 @@ class NotificationService implements ReminderService {
       }
 
       for (final value in medications) {
-        if (value.reminderMinutes < 0 || !value.active) continue;
+        if (value.reminderMinutes < 0 ||
+            !value.active ||
+            !supportsDailyMedicationReminders(value.schedule)) {
+          continue;
+        }
         for (final time in value.times) {
           final parts = time.split(':');
           if (parts.length != 2) continue;
           final hour = int.tryParse(parts[0]);
           final minute = int.tryParse(parts[1]);
           if (hour == null || minute == null) continue;
+          if (hour < 0 || hour > 23 || minute < 0 || minute > 59) continue;
           var when = tz.TZDateTime(
             tz.local,
             now.year,

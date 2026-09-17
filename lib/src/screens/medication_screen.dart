@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_state.dart';
 import '../data/medication_catalog.dart';
 import '../models/models.dart';
+import '../models/entry_validation.dart';
 import '../widgets/common.dart';
 import '../widgets/entry_fields.dart';
 
@@ -108,6 +109,7 @@ class MedicationScreen extends StatelessWidget {
         existing?.times.map(timeFromStorage).whereType<TimeOfDay>().toList() ??
         <TimeOfDay>[];
     var reminderMinutes = existing?.reminderMinutes ?? -1;
+    String? error;
     try {
       final route = DialogRoute<EntryDialogAction>(
         context: context,
@@ -118,8 +120,9 @@ class MedicationScreen extends StatelessWidget {
                 ? knownStrengths
                 : MedicationCatalog.genericStrengths;
             return AlertDialog(
-              title: Text(
-                existing == null ? 'Add medication' : 'Edit medication',
+              title: EntryDialogTitle(
+                title: existing == null ? 'Add medication' : 'Edit medication',
+                error: error,
               ),
               content: SizedBox(
                 width: 500,
@@ -197,6 +200,12 @@ class MedicationScreen extends StatelessWidget {
                         onChanged: (value) =>
                             setState(() => reminderMinutes = value),
                       ),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 14),
+                        child: Text(
+                          'Reminders repeat daily at the times you choose. Weekly, alternate-day, as-needed, and custom schedules are recorded without automatic reminders.',
+                        ),
+                      ),
                       TextEntry(controller: notes, label: 'Notes', lines: 2),
                     ],
                   ),
@@ -214,8 +223,27 @@ class MedicationScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () =>
-                      Navigator.pop(context, EntryDialogAction.save),
+                  onPressed: () {
+                    if (name.text.trim().isEmpty) {
+                      setState(
+                        () => error =
+                            'Enter the medication name exactly as shown on the label.',
+                      );
+                    } else if (reminderMinutes >= 0 &&
+                        !supportsDailyMedicationReminders(schedule.text)) {
+                      setState(
+                        () => error =
+                            'Automatic reminders support daily schedules only. Select No reminder for this schedule.',
+                      );
+                    } else if (reminderMinutes >= 0 && times.isEmpty) {
+                      setState(
+                        () => error =
+                            'Add a time for the daily reminder, or select No reminder.',
+                      );
+                    } else {
+                      Navigator.pop(context, EntryDialogAction.save);
+                    }
+                  },
                   child: Text(existing == null ? 'Save' : 'Update'),
                 ),
               ],
@@ -247,7 +275,7 @@ class MedicationScreen extends StatelessWidget {
             schedule: schedule.text.trim(),
             notes: notes.text.trim(),
             active: existing?.active ?? true,
-            times: times.map(timeToStorage).toList(),
+            times: times.map(timeToStorage).toSet().toList(),
             reminderMinutes: reminderMinutes,
           ),
         );

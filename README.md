@@ -14,6 +14,8 @@ The initial Flutter vertical slice includes:
 - Medication list
 - Flagged health log entries
 - Manual measurements without interpretation
+- Separate systolic/diastolic blood-pressure entry and exact-minute time controls
+- Password-protected local backup and non-overwriting restore
 - Editing and confirmed individual deletion for every entry type
 - Local deletion of all records
 - Initial model tests
@@ -21,12 +23,31 @@ The initial Flutter vertical slice includes:
 Not yet implemented:
 
 - PDF generation and printing
-- Encrypted backup/restore
 - Biometric app lock and app-switcher privacy shield
 - Onboarding and consent records
 - Accessibility and device integration tests
 - GCP deployment
 - Production app-store assets
+
+## Manual backup and restore
+
+In Settings, choose **Save backup** and create a unique passphrase of at least
+12 characters. ClearCue encrypts all appointments, medications, health notes,
+and measurements using AES-256-GCM and a PBKDF2-HMAC-SHA256 key (210,000
+iterations with a random salt). No plaintext backup file is created and the
+passphrase is not stored. Keep the `.clearcue` file and passphrase safe;
+there is no password recovery. Browser exports start a download.
+
+Choose **Restore backup**, select the file, enter its passphrase, and review
+the entry counts before confirming. Existing IDs are skipped, so newer records
+are never overwritten. If an import is interrupted, retrying adds only the
+remaining entries. Restore is additive, not an atomic replacement. App
+preferences are not included. Backups are limited to 20 MB and 10,000 entries
+per type. Check restored reminders before relying on them.
+
+ClearCue makes no network requests for backup or restore. The operating system
+may offer cloud-connected folders; choose a local folder if that is not desired.
+The web app's ordinary localStorage is not encrypted; exported backups are.
 
 ## Installed development environment
 
