@@ -1,6 +1,6 @@
-import 'package:clearvisit/src/app.dart';
-import 'package:clearvisit/src/data/clearvisit_repository.dart';
-import 'package:clearvisit/src/models/models.dart';
+import 'package:carecue/src/app.dart';
+import 'package:carecue/src/data/carecue_repository.dart';
+import 'package:carecue/src/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,7 +19,7 @@ void main() {
         ),
       ],
     );
-    await tester.pumpWidget(ClearCueApp(repository: repository));
+    await tester.pumpWidget(CareCueApp(repository: repository));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Vitals'));
     await tester.pumpAndSettle();
@@ -39,7 +39,7 @@ void main() {
   testWidgets('empty notes show an error without dismissing the form', (
     tester,
   ) async {
-    await tester.pumpWidget(ClearCueApp(repository: _FakeRepository()));
+    await tester.pumpWidget(CareCueApp(repository: _FakeRepository()));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Notes'));
     await tester.pumpAndSettle();
@@ -51,7 +51,7 @@ void main() {
     expect(find.text('New log entry'), findsOneWidget);
   });
   testWidgets('AI page has a back button that returns Home', (tester) async {
-    await tester.pumpWidget(ClearCueApp(repository: _FakeRepository()));
+    await tester.pumpWidget(CareCueApp(repository: _FakeRepository()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('AI'));
@@ -66,8 +66,8 @@ void main() {
     expect(find.text('Where would you like to go?'), findsOneWidget);
   });
 
-  testWidgets('tapping the ClearCue logo returns Home', (tester) async {
-    await tester.pumpWidget(ClearCueApp(repository: _FakeRepository()));
+  testWidgets('tapping the CareCue logo returns Home', (tester) async {
+    await tester.pumpWidget(CareCueApp(repository: _FakeRepository()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('AI'));
@@ -81,7 +81,7 @@ void main() {
   testWidgets('system back returns a section to Home before exiting', (
     tester,
   ) async {
-    await tester.pumpWidget(ClearCueApp(repository: _FakeRepository()));
+    await tester.pumpWidget(CareCueApp(repository: _FakeRepository()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('AI'));
@@ -121,7 +121,7 @@ void main() {
         ),
       ],
     );
-    await tester.pumpWidget(ClearCueApp(repository: repository));
+    await tester.pumpWidget(CareCueApp(repository: repository));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Visits'));
@@ -172,7 +172,7 @@ void main() {
         ),
       ],
     );
-    await tester.pumpWidget(ClearCueApp(repository: repository));
+    await tester.pumpWidget(CareCueApp(repository: repository));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Notes'));
@@ -198,7 +198,7 @@ void main() {
   });
 }
 
-class _FakeRepository implements ClearVisitRepository {
+class _FakeRepository implements CareCueRepository {
   _FakeRepository({
     List<Appointment> appointments = const [],
     List<Medication> medications = const [],

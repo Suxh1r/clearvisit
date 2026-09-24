@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'app.dart';
-import 'data/clearvisit_database.dart';
-import 'data/sql_clearvisit_repository.dart';
+import 'data/carecue_database.dart';
+import 'data/sql_carecue_repository.dart';
 import 'notifications/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = await ClearVisitDatabase.open();
-  final repository = SqlClearVisitRepository(database);
+  final database = await CareCueDatabase.open();
+  final repository = SqlCareCueRepository(database);
   final notifications = NotificationService();
   await notifications.init();
-  runApp(ClearCueApp(repository: repository, reminders: notifications));
+  runApp(CareCueApp(repository: repository, reminders: notifications));
 }

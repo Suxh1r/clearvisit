@@ -1,5 +1,5 @@
-name: clearvisit
-description: ClearCue, a private, local-first medical visit organizer.
+name: carecue
+description: CareCue, a private, local-first medical visit organizer.
 publish_to: none
 version: 0.1.0+1
 

@@ -1,4 +1,4 @@
-import 'package:clearvisit/src/ai/ai_assistant_service.dart';
+import 'package:carecue/src/ai/ai_assistant_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

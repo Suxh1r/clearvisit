@@ -19,7 +19,7 @@ class MedicationScreen extends StatelessWidget {
         const ScreenIntro(
           title: 'Medication list',
           body:
-              'Record exactly what the label says. ClearCue does not check medications or doses.',
+              'Record exactly what the label says. CareCue does not check medications or doses.',
         ),
         Expanded(
           child: state.medications.isEmpty

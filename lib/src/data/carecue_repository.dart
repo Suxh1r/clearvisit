@@ -1,6 +1,6 @@
 import '../models/models.dart';
 
-abstract interface class ClearVisitRepository {
+abstract interface class CareCueRepository {
   Future<List<Appointment>> appointments();
 
   Future<List<Medication>> medications();

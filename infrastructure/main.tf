@@ -12,7 +12,7 @@ locals {
 }
 
 resource "google_folder" "clearvisit" {
-  display_name = "ClearCue"
+  display_name = "CareCue"
   parent       = "organizations/${var.organization_id}"
 }
 

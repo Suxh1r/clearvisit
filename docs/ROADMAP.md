@@ -18,7 +18,7 @@
 
 ## Milestone 3 — User-controlled portability
 
-- Completed: versioned encrypted `.clearcue` backups with passphrase-based encryption
+- Completed: versioned encrypted `.carecue` backups with passphrase-based encryption and legacy `.clearcue` restore support
 - Completed: validated restore preview; add missing records without overwriting existing records
 - Remaining: atomic restore transaction and additional physical-device file-picker tests
 - Temporary-file cleanup and share-sheet privacy warnings

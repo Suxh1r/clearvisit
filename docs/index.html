@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="ClearCue is a private, local-first mobile app that helps patients and caregivers prepare for medical appointments, organize medications, and track health notes."
+      content="CareCue is a private, local-first mobile app that helps patients and caregivers prepare for medical appointments, organize medications, track health notes and vitals, and create encrypted backups."
     />
-    <title>ClearCue | Congressional App Challenge</title>
+    <title>CareCue | Congressional App Challenge</title>
     <style>
       :root {
         --blue: #02569b;
@@ -349,9 +349,9 @@
   <body>
     <div class="page">
       <header>
-        <a class="brand" href="#top" aria-label="ClearCue home">
+        <a class="brand" href="#top" aria-label="CareCue home">
           <span class="brand-mark" aria-hidden="true">✓</span>
-          <span>ClearCue</span>
+          <span>CareCue</span>
         </a>
         <nav aria-label="Page navigation">
           <a href="/clearvisit/">Open app</a>
@@ -368,7 +368,7 @@
             <span class="eyebrow">2026 Congressional App Challenge project</span>
             <h1 id="hero-title">Walk into medical visits prepared.</h1>
             <p class="lead">
-              ClearCue is a simple, mobile-first organizer that helps patients,
+              CareCue is a simple, mobile-first organizer that helps patients,
               veterans, older adults, and caregivers keep appointment questions,
               medication lists, health notes, and vitals in one readable place.
             </p>
@@ -379,14 +379,14 @@
             </div>
           </div>
 
-          <div class="phone-stack" aria-label="ClearCue app screenshots">
+          <div class="phone-stack" aria-label="CareCue app screenshots">
             <div class="phone secondary" aria-hidden="true">
               <img src="assets/ai.png" alt="" />
             </div>
             <div class="phone">
               <img
                 src="assets/home.png"
-                alt="ClearCue home screen with large navigation cards"
+                alt="CareCue home screen with large navigation cards"
               />
             </div>
           </div>
@@ -406,16 +406,17 @@
               <div class="icon" aria-hidden="true">📅</div>
               <h3>Appointment prep</h3>
               <p>
-                Capture what to bring, what symptoms to mention, and what
-                questions to ask before the visit starts.
+                Capture what to bring, symptoms to mention, questions to ask,
+                appointment times, and optional local reminders. Entries can be
+                edited or deleted with confirmation.
               </p>
             </article>
             <article class="card">
               <div class="icon" aria-hidden="true">💊</div>
               <h3>Medication list</h3>
               <p>
-                Keep names, doses, timing, and notes organized in a clean list
-                that can be printed or shown to a provider.
+                Keep names, strengths, doses, schedules, exact times, notes,
+                and supported daily reminders organized in one readable list.
               </p>
             </article>
             <article class="card">
@@ -430,8 +431,8 @@
               <div class="icon" aria-hidden="true">📈</div>
               <h3>Vitals tracking</h3>
               <p>
-                Store user-entered measurements like blood sugar, blood
-                pressure, weight, pain level, or other simple readings.
+                Store user-entered measurements with units and exact times.
+                Blood pressure uses separate systolic and diastolic fields.
               </p>
             </article>
             <article class="card">
@@ -440,6 +441,15 @@
               <p>
                 In the local preview, AI behavior is simulated. Future cloud AI
                 use would require explicit consent before text leaves the device.
+              </p>
+            </article>
+            <article class="card">
+              <div class="icon" aria-hidden="true">🔐</div>
+              <h3>Encrypted backup</h3>
+              <p>
+                Save a passphrase-protected backup of visits, medications,
+                notes, and measurements, then preview and restore only missing
+                records without overwriting current entries.
               </p>
             </article>
             <article class="card">
@@ -458,7 +468,7 @@
             <div>
               <h2 id="privacy-title">Private by default.</h2>
               <p>
-                ClearCue is designed as a personal organizer, not a medical
+                CareCue is designed as a personal organizer, not a medical
                 device. User records are stored locally on the phone. There is no
                 account system and no cloud database for health information.
               </p>
@@ -468,6 +478,7 @@
               <li>No cloud health-record database</li>
               <li>No diagnosis or medication safety checking</li>
               <li>Data stays on the user’s device</li>
+              <li>Optional backups are encrypted before the user saves them</li>
             </ul>
           </div>
         </section>
@@ -484,15 +495,15 @@
 
           <div class="gallery">
             <figure class="screenshot">
-              <img src="assets/home.png" alt="ClearCue table of contents screen" />
+              <img src="assets/home.png" alt="CareCue table of contents screen" />
               <figcaption>Home table of contents</figcaption>
             </figure>
             <figure class="screenshot">
-              <img src="assets/visits.png" alt="ClearCue visit preparation screen" />
+              <img src="assets/visits.png" alt="CareCue visit preparation screen" />
               <figcaption>Visit preparation</figcaption>
             </figure>
             <figure class="screenshot">
-              <img src="assets/ai.png" alt="ClearCue condensed AI helper screen" />
+              <img src="assets/ai.png" alt="CareCue condensed AI helper screen" />
               <figcaption>Condensed AI helper</figcaption>
             </figure>
           </div>
@@ -503,7 +514,7 @@
             <div>
               <h2 id="story-title">The story</h2>
               <p>
-                ClearCue was inspired by time spent at the John Cochran VA
+                CareCue was inspired by time spent at the John Cochran VA
                 Hospital, watching veterans navigate complex care systems and
                 seeing how easy it is for important questions or details to get
                 lost in the moment.
@@ -536,7 +547,7 @@
 
       <footer>
         <p>
-          ClearCue is an educational student software project. It does not
+          CareCue is an educational student software project. It does not
           provide medical advice, diagnosis, treatment, medication interaction
           checking, or emergency support.
         </p>

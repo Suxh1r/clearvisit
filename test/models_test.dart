@@ -1,4 +1,4 @@
-import 'package:clearvisit/src/models/models.dart';
+import 'package:carecue/src/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

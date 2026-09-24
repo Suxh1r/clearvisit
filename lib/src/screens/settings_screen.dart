@@ -33,14 +33,14 @@ class SettingsScreen extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(bottom: 18),
                 child: Text(
-                  'Notes\nNo cloud sync: ClearCue does not automatically upload your entries.\n\nPersonal organizer only: ClearCue does not provide medical advice, diagnosis, monitoring, or treatment.',
+                  'Notes\nNo cloud sync: CareCue does not automatically upload your entries.\n\nPersonal organizer only: CareCue does not provide medical advice, diagnosis, monitoring, or treatment.',
                 ),
               ),
               SummaryCard(
                 icon: Icons.delete_forever,
                 title: 'Delete everything',
                 subtitle:
-                    'Permanently removes all ClearCue records from this device.',
+                    'Permanently removes all CareCue records from this device.',
                 trailing: Icon(
                   Icons.chevron_right,
                   color: Theme.of(context).colorScheme.error,
@@ -49,7 +49,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'If you may be having a medical emergency, contact local emergency services. Do not rely on ClearCue.',
+                'If you may be having a medical emergency, contact local emergency services. Do not rely on CareCue.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.35,

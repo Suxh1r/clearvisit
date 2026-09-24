@@ -1,4 +1,4 @@
-name: Deploy ClearCue to GitHub Pages
+name: Deploy CareCue to GitHub Pages
 
 on:
   push:

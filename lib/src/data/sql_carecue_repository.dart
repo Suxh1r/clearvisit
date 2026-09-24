@@ -1,13 +1,13 @@
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import '../models/models.dart';
-import 'clearvisit_database.dart';
-import 'clearvisit_repository.dart';
+import 'carecue_database.dart';
+import 'carecue_repository.dart';
 
-class SqlClearVisitRepository implements ClearVisitRepository {
-  SqlClearVisitRepository(this.database);
+class SqlCareCueRepository implements CareCueRepository {
+  SqlCareCueRepository(this.database);
 
-  final ClearVisitDatabase database;
+  final CareCueDatabase database;
 
   @override
   Future<List<Appointment>> appointments() async {

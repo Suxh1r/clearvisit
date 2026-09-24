@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'data/clearvisit_repository.dart';
+import 'data/carecue_repository.dart';
 import 'models/models.dart';
 import 'notifications/reminder_service.dart';
 
 class AppState extends ChangeNotifier {
   AppState(this.repository, {this.reminders});
 
-  final ClearVisitRepository repository;
+  final CareCueRepository repository;
   final ReminderService? reminders;
   bool loading = true;
   ThemeMode themeMode = ThemeMode.system;

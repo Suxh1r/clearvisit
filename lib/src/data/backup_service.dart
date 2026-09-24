@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:cryptography/cryptography.dart';
 
 import '../models/models.dart';
-import 'clearvisit_repository.dart';
+import 'carecue_repository.dart';
 
 class BackupData {
   const BackupData({
@@ -90,7 +90,7 @@ class BackupService {
     final bytes = Uint8List.fromList(
       utf8.encode(
         jsonEncode({
-          'format': 'clearcue-backup',
+          'format': 'carecue-backup',
           'version': 1,
           'salt': base64Encode(salt),
           'nonce': base64Encode(box.nonce),
@@ -112,7 +112,8 @@ class BackupService {
     try {
       final envelope = jsonDecode(utf8.decode(bytes));
       if (envelope is! Map<String, dynamic> ||
-          envelope['format'] != 'clearcue-backup' ||
+          (envelope['format'] != 'carecue-backup' &&
+              envelope['format'] != 'clearcue-backup') ||
           envelope['version'] != 1) {
         throw const FormatException();
       }
@@ -149,7 +150,7 @@ class BackupService {
   /// fails, retrying safely resumes without duplicating successful records.
   Future<int> restoreMissing(
     BackupData data,
-    ClearVisitRepository repository,
+    CareCueRepository repository,
   ) async {
     var added = 0;
     Future<void> merge<T>(

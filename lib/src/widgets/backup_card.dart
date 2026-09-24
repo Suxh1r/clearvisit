@@ -113,7 +113,7 @@ class _BackupCardState extends State<BackupCard> {
     try {
       if (restoring) {
         final file = await FilePicker.pickFile(
-          dialogTitle: 'Choose ClearCue backup',
+          dialogTitle: 'Choose CareCue backup',
         );
         if (file == null || !mounted) return;
         final size = await file.length();
@@ -164,7 +164,7 @@ class _BackupCardState extends State<BackupCard> {
         final bytes = await _service.encrypt(data, password);
         final saved = await FilePicker.saveFile(
           fileName:
-              'clearcue-${DateTime.now().toIso8601String().substring(0, 10)}.clearcue',
+              'carecue-${DateTime.now().toIso8601String().substring(0, 10)}.carecue',
           bytes: bytes,
           mimeType: 'application/octet-stream',
           dialogTitle: 'Save encrypted backup',

@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:clearvisit/src/data/backup_service.dart';
-import 'package:clearvisit/src/data/clearvisit_repository.dart';
-import 'package:clearvisit/src/models/models.dart';
+import 'package:carecue/src/data/backup_service.dart';
+import 'package:carecue/src/data/carecue_repository.dart';
+import 'package:carecue/src/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -49,6 +49,14 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('legacy ClearCue backup envelopes remain restorable', () async {
+    final envelope = jsonDecode(utf8.decode(encrypted)) as Map<String, dynamic>;
+    envelope['format'] = 'clearcue-backup';
+    final legacy = Uint8List.fromList(utf8.encode(jsonEncode(envelope)));
+    final restored = await service.decrypt(legacy, password);
+    expect(restored.toMap(), data.toMap());
+  });
   test('tampered ciphertext cannot decrypt', () async {
     final envelope = jsonDecode(utf8.decode(encrypted)) as Map<String, dynamic>;
     final ciphertext = base64Decode(envelope['ciphertext'] as String);
@@ -84,7 +92,7 @@ void main() {
   });
 }
 
-class _RestoreRepository implements ClearVisitRepository {
+class _RestoreRepository implements CareCueRepository {
   final visits = <Appointment>[];
   final meds = <Medication>[];
   final notes = <HealthLogEntry>[];

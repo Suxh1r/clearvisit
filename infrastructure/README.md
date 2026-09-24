@@ -1,6 +1,6 @@
 # GCP infrastructure
 
-This Terraform is only a starting boundary: it creates the ClearCue folder and public/security project separation. It deliberately does not create a regulated-data project or health-data services.
+This Terraform is only a starting boundary: it creates the CareCue folder and public/security project separation. It deliberately does not create a regulated-data project or health-data services.
 
 Before applying:
 

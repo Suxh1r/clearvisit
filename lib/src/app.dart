@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_state.dart';
-import 'data/clearvisit_repository.dart';
+import 'data/carecue_repository.dart';
 import 'notifications/reminder_service.dart';
 import 'screens/ai_screen.dart';
 import 'screens/appointment_screen.dart';
@@ -10,17 +10,17 @@ import 'screens/medication_screen.dart';
 import 'screens/measurement_screen.dart';
 import 'screens/settings_screen.dart';
 
-class ClearCueApp extends StatefulWidget {
-  const ClearCueApp({required this.repository, this.reminders, super.key});
+class CareCueApp extends StatefulWidget {
+  const CareCueApp({required this.repository, this.reminders, super.key});
 
-  final ClearVisitRepository repository;
+  final CareCueRepository repository;
   final ReminderService? reminders;
 
   @override
-  State<ClearCueApp> createState() => _ClearCueAppState();
+  State<CareCueApp> createState() => _CareCueAppState();
 }
 
-class _ClearCueAppState extends State<ClearCueApp> {
+class _CareCueAppState extends State<CareCueApp> {
   late final AppState state;
 
   @override
@@ -40,17 +40,17 @@ class _ClearCueAppState extends State<ClearCueApp> {
     return AnimatedBuilder(
       animation: state,
       builder: (context, _) => MaterialApp(
-        title: 'ClearCue',
+        title: 'CareCue',
         debugShowCheckedModeBanner: false,
         themeMode: state.themeMode,
-        theme: _clearCueTheme(Brightness.light),
-        darkTheme: _clearCueTheme(Brightness.dark),
+        theme: _careCueTheme(Brightness.light),
+        darkTheme: _careCueTheme(Brightness.dark),
         home: HomeShell(state: state),
       ),
     );
   }
 
-  ThemeData _clearCueTheme(Brightness brightness) {
+  ThemeData _careCueTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final colors = ColorScheme.fromSeed(
       seedColor: const Color(0xFF02569B),
@@ -249,7 +249,7 @@ class _HomeShellState extends State<HomeShell> {
           titleSpacing: selectedIndex == 0 ? 16 : 0,
           title: Semantics(
             button: true,
-            label: 'ClearCue logo, go to Home',
+            label: 'CareCue logo, go to Home',
             child: InkWell(
               key: const Key('home-logo-button'),
               onTap: _goHome,
@@ -259,9 +259,9 @@ class _HomeShellState extends State<HomeShell> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _ClearCueMark(),
+                    _CareCueMark(),
                     SizedBox(width: 10),
-                    Text('ClearCue'),
+                    Text('CareCue'),
                   ],
                 ),
               ),
@@ -297,8 +297,8 @@ class _HomeShellState extends State<HomeShell> {
   }
 }
 
-class _ClearCueMark extends StatelessWidget {
-  const _ClearCueMark();
+class _CareCueMark extends StatelessWidget {
+  const _CareCueMark();
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -359,7 +359,7 @@ class HomeContentsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Choose a section below. ClearCue keeps your information organized on this device.',
+                  'Choose a section below. CareCue keeps your information organized on this device.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colors.white.withAlpha(240),
                     height: 1.35,

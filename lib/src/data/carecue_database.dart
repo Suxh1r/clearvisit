@@ -6,8 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
-class ClearVisitDatabase {
-  ClearVisitDatabase._(this.db);
+class CareCueDatabase {
+  CareCueDatabase._(this.db);
 
   final Database db;
 
@@ -19,7 +19,7 @@ class ClearVisitDatabase {
     ),
   );
 
-  static Future<ClearVisitDatabase> open() async {
+  static Future<CareCueDatabase> open() async {
     final directory = await getApplicationSupportDirectory();
     final key = await _getOrCreateKey();
     final database = await openDatabase(
@@ -92,7 +92,7 @@ class ClearVisitDatabase {
         await _createSettingsTable(db);
       },
     );
-    return ClearVisitDatabase._(database);
+    return CareCueDatabase._(database);
   }
 
   static Future<void> _createSettingsTable(DatabaseExecutor db) =>

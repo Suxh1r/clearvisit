@@ -1,5 +1,5 @@
-import 'package:clearvisit/src/widgets/common.dart';
-import 'package:clearvisit/src/widgets/entry_fields.dart';
+import 'package:carecue/src/widgets/common.dart';
+import 'package:carecue/src/widgets/entry_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -9,7 +9,7 @@ $env:ANDROID_SDK_ROOT = $androidSdk
 
 Push-Location (Split-Path $PSScriptRoot -Parent)
 try {
-  & $flutter create --platforms=android,ios --project-name=clearvisit --org=org.clearvisit .
+  & $flutter create --platforms=android,ios --project-name=carecue --org=org.clearvisit .
   & $flutter config --android-sdk $androidSdk
   & $flutter pub get
   & $flutter analyze

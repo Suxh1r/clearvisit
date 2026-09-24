@@ -26,7 +26,7 @@ android {
     buildTypes {
         release {
             // Local development only. Configure a real release signing key
-            // before distributing ClearCue outside local test builds.
+            // before distributing CareCue outside local test builds.
             signingConfig = signingConfigs.getByName("debug")
         }
     }

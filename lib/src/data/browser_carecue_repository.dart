@@ -7,9 +7,9 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 import '../models/models.dart';
-import 'clearvisit_repository.dart';
+import 'carecue_repository.dart';
 
-class BrowserClearVisitRepository implements ClearVisitRepository {
+class BrowserCareCueRepository implements CareCueRepository {
   static const _prefix = 'clearvisit.web.v1';
 
   @override

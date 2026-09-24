@@ -1,4 +1,4 @@
-import 'package:clearvisit/src/models/entry_validation.dart';
+import 'package:carecue/src/models/entry_validation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
